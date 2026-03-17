@@ -1,14 +1,14 @@
 {
-  "name": "Excellearn Wealth Tracker",
-  "short_name": "Excellearn",
-  "description": "Premium Wealth & Financial Tracker by Excellearn",
+  "name": "GAS PWA App",
+  "short_name": "GAS PWA",
+  "description": "Google Apps Script yang dibungkus menjadi PWA melalui GitHub Pages.",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#f4f7f6",
   "theme_color": "#007bff",
   "icons": [
     {
-      "src": "https://img.icons8.com/color/512/financial-growth-analysis.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/2965/2965306.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
