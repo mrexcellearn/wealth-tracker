@@ -9,11 +9,10 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Excellearn">
     
-    <title>Excellearn Wealth Tracker</title>
+    <title>PWA 2.2.1 Excellearn Wealth Tracker</title>
     
-    <!-- Link langsung ke Manifest & Icon di Google Apps Script -->
-    <!-- GANTI [DOMAIN_GITHUB] dengan domain github anda, misal: mrexcellearn.github.io -->
-    <link rel="manifest" href="https://script.google.com/macros/s/AKfycbw53KpCxZusvLecc1ogP4qgSOqDIXFoCRKupeTj3dyXJXH7DkjqJ61yxop82rY_4VBK/exec?get=manifest&host=mrexcellearn.github.io/wealth-tracker">
+    <!-- Link langsung ke Manifest & Icon di Repo GitHub (Satu Domain) -->
+    <link rel="manifest" href="manifest.json">
     <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/financial-growth-analysis.png">
 
     <style>
@@ -39,6 +38,18 @@
     </iframe>
 
     <script>
+        /**
+         * PWA SERVICE WORKER REGISTRATION
+         * Wajib di domain yang sama agar tombol 'Install' muncul.
+         */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('PWA SW Registered!', reg))
+                    .catch(err => console.log('PWA SW Failed:', err));
+            });
+        }
+
         /**
          * BRIDGE: Menangkap Native Back Gesture dari domain GitHub
          * dan mengirimkan sinyal ke dalam iframe Google Apps Script.
