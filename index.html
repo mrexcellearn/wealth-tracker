@@ -21,7 +21,12 @@
   <script src="https://cdn.tailwindcss.com"></script>
   
   <style>
-    body { margin: 0; padding: 0; overflow: hidden; background-color: #f1f5f9; font-family: 'Inter', sans-serif;}
+    body { 
+      margin: 0; padding: 0; overflow: hidden; background-color: #f1f5f9; font-family: 'Inter', sans-serif;
+      /* ZETTBOT FIX: Mencegah efek visual 'karet' saat mentok di-swipe di HP */
+      overscroll-behavior-y: none;
+      overscroll-behavior-x: none; 
+    }
     
     #loaderOverlay {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -64,9 +69,7 @@
       const loader = document.getElementById('loaderOverlay');
       loader.style.opacity = '0';
       
-      // ZettBOT FIX: Pindahkan fokus ke dalam iframe agar tidak perlu klik layar dulu
       frame.focus();
-
       setTimeout(() => { loader.style.visibility = 'hidden'; }, 400);
     }
 
@@ -74,30 +77,38 @@
     // ZETTBOT: IFRAME COMMUNICATION INTERCOM
     // ==========================================
 
-    // 1. Meneruskan Shortcut Keyboard (Ctrl+K) ke dalam Iframe
     window.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
         e.preventDefault();
         const frame = document.getElementById('gasFrame');
         if (frame && frame.contentWindow) {
-          // Kirim sinyal 'toggleAI' ke Google Apps Script
           frame.contentWindow.postMessage('toggleAI', '*');
         }
       }
     });
 
-    // 2. Mencegah Swipe Back / Tombol Back Android menutup PWA
-    // Kita buat "History Dummy" agar sistem mendeteksi masih ada halaman sebelumnya
-    history.pushState({ page: 'wrapper' }, '', '');
+    // ==========================================
+    // ZETTBOT FIX: ROBUST MOBILE HISTORY TRAP
+    // ==========================================
+    
+    // 1. Dorong state pertama (Sebagai dasar jurang)
+    history.pushState({ page: 'base' }, '', window.location.href);
+    
+    // 2. Dorong state kedua (Sebagai posisi aktif saat ini)
+    history.pushState({ page: 'active' }, '', window.location.href);
 
     window.addEventListener('popstate', (e) => {
+      // Saat user swipe-back, posisi turun dari 'active' ke 'base'.
+      // OS Batal menutup aplikasi karena merasa masih ada 1 halaman ('base')!
+      
       const frame = document.getElementById('gasFrame');
       if (frame && frame.contentWindow) {
-        // Kirim sinyal 'goBack' ke Google Apps Script agar dia menutup modal/tab di dalamnya
+        // Kirim sinyal tutup modal ke dalam aplikasi Google Script
         frame.contentWindow.postMessage('goBack', '*');
       }
-      // Dorong lagi History Dummy agar PWA tidak tertutup pada klik back selanjutnya
-      history.pushState({ page: 'wrapper' }, '', '');
+      
+      // 3. Dorong lagi state 'active' dengan cepat, supaya jebakan terpasang lagi untuk swipe berikutnya
+      history.pushState({ page: 'active' }, '', window.location.href);
     });
 
   </script>
