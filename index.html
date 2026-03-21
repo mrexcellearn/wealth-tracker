@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Excellearn Wealth Tracker</title>
-  
+
   <link rel="preconnect" href="https://script.google.com" crossorigin>
   <link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ea580c">
+  <meta name="theme-color" content="#020617">
   <link rel="icon" href="growth.png" type="image/png">
   <link rel="apple-touch-icon" href="icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,32 +18,51 @@
   <meta name="apple-mobile-web-app-title" content="Excellearn">
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  
+
   <style>
-    body { 
-      margin: 0; padding: 0; overflow: hidden; background-color: #f1f5f9; font-family: 'Inter', sans-serif;
+    body {
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background-color: #f1f5f9;
+      font-family: 'Inter', sans-serif;
       /* ZETTBOT FIX: Mencegah efek visual 'karet' saat mentok di-swipe di HP */
       overscroll-behavior-y: none;
-      overscroll-behavior-x: none; 
+      overscroll-behavior-x: none;
     }
-    
+
     #loaderOverlay {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background-color: #ffffff; z-index: 50;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+      z-index: 50;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
       transition: opacity 0.4s ease, visibility 0.4s ease;
     }
 
     #gasFrame {
-      width: 100%; height: 100%; border: none; 
-      position: absolute; top: 0; left: 0;
-      z-index: 20; opacity: 0;
+      width: 100%;
+      height: 100%;
+      border: none;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 20;
+      opacity: 0;
       transition: opacity 0.4s ease;
     }
   </style>
 </head>
+
 <body>
 
   <div id="loaderOverlay">
@@ -50,25 +70,23 @@
     <p class="text-xs font-medium text-slate-600" id="loaderText">Membuka Excellearn...</p>
   </div>
 
-  <iframe 
-    id="gasFrame"
-    src="https://script.google.com/macros/s/AKfycbw53KpCxZusvLecc1ogP4qgSOqDIXFoCRKupeTj3dyXJXH7DkjqJ61yxop82rY_4VBK/exec" 
-    allow="microphone *; camera *; geolocation *;"
-    onload="hideLoader()">
+  <iframe id="gasFrame"
+    src="https://script.google.com/macros/s/AKfycbw53KpCxZusvLecc1ogP4qgSOqDIXFoCRKupeTj3dyXJXH7DkjqJ61yxop82rY_4VBK/exec"
+    allow="microphone *; camera *; geolocation *;" onload="hideLoader()">
   </iframe>
 
   <script>
     let isLoaded = false;
-    
+
     function hideLoader() {
-      if(isLoaded) return; 
+      if (isLoaded) return;
       isLoaded = true;
-      
+
       const frame = document.getElementById('gasFrame');
-      frame.style.opacity = '1'; 
+      frame.style.opacity = '1';
       const loader = document.getElementById('loaderOverlay');
       loader.style.opacity = '0';
-      
+
       frame.focus();
       setTimeout(() => { loader.style.visibility = 'hidden'; }, 400);
     }
@@ -86,7 +104,7 @@
         e.preventDefault();
         frame.contentWindow.postMessage('toggleAI', '*');
       }
-      
+
       // 2. Meneruskan tombol Escape (Esc)
       if (e.key === 'Escape' || e.key === 'Esc') {
         e.preventDefault();
@@ -99,7 +117,7 @@
     // ZETTBOT FIX: HASH-BASED MOBILE HISTORY TRAP
     // Sangat kebal terhadap blokir "User Activation" Android
     // ==========================================
-    
+
     // 1. Tambahkan Hash (#app) saat aplikasi dimuat untuk memperpanjang riwayat browser
     setTimeout(() => {
       if (window.location.hash !== '#app') {
@@ -115,7 +133,7 @@
           // Beri perintah tutup modal ke Google Script
           frame.contentWindow.postMessage('goBack', '*');
         }
-        
+
         // 3. Pasang jebakan hash-nya lagi agar swipe berikutnya tidak menutup aplikasi
         window.location.hash = 'app';
       }
@@ -123,4 +141,5 @@
 
   </script>
 </body>
+
 </html>
