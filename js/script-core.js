@@ -261,8 +261,15 @@
             console.log(`[Sync] Menitipkan update ${key} ke background...`);
             google.script.run
                 .withSuccessHandler((res) => {
-                    if (res && res.success === false) rollbackAppData(snapshot, `Gagal sinkronisasi ${key}: ` + res.message);
-                    else console.log(`[Sync] ${key} berhasil disinkronisasi.`);
+                    if (res && res.success === false) {
+                        if (res.authError) {
+                            Swal.fire({ icon: 'error', title: 'Sesi Habis', text: 'Sesi login Anda telah kadaluarsa. Silakan login kembali.' }).then(() => {
+                                if (typeof logoutUser === 'function') logoutUser();
+                            });
+                        } else {
+                            rollbackAppData(snapshot, `Gagal sinkronisasi ${key}: ` + res.message);
+                        }
+                    } else console.log(`[Sync] ${key} berhasil disinkronisasi.`);
                 })
                 .withFailureHandler((err) => rollbackAppData(snapshot, `Gagal sinkronisasi ${key}: ` + err))
                 .mutateMasterData(spreadsheetId, key, payload);
@@ -283,8 +290,15 @@
         if (spreadsheetId && spreadsheetId !== 'LOCAL_MOCK' && typeof google !== 'undefined' && google.script) {
             google.script.run
                 .withSuccessHandler((res) => {
-                    if (res && res.success === false) rollbackAppData(snapshot, `Gagal mencatat transaksi: ` + res.message);
-                    else console.log(`[Sync] Transaksi berhasil disinkronisasi.`);
+                    if (res && res.success === false) {
+                        if (res.authError) {
+                            Swal.fire({ icon: 'error', title: 'Sesi Habis', text: 'Sesi login Anda telah kadaluarsa. Silakan login kembali.' }).then(() => {
+                                if (typeof logoutUser === 'function') logoutUser();
+                            });
+                        } else {
+                            rollbackAppData(snapshot, `Gagal mencatat transaksi: ` + res.message);
+                        }
+                    } else console.log(`[Sync] Transaksi berhasil disinkronisasi.`);
                 })
                 .withFailureHandler((err) => rollbackAppData(snapshot, `Gagal mencatat transaksi: ` + err))
                 .appendTransaction(spreadsheetId, payload);
@@ -308,8 +322,15 @@
         if (spreadsheetId && spreadsheetId !== 'LOCAL_MOCK' && typeof google !== 'undefined' && google.script) {
             google.script.run
                 .withSuccessHandler((res) => {
-                    if (res && res.success === false) rollbackAppData(snapshot, `Gagal mencatat transaksi massal: ` + res.message);
-                    else console.log(`[Sync] Batch ${payloads.length} transaksi berhasil.`);
+                    if (res && res.success === false) {
+                        if (res.authError) {
+                            Swal.fire({ icon: 'error', title: 'Sesi Habis', text: 'Sesi login Anda telah kadaluarsa. Silakan login kembali.' }).then(() => {
+                                if (typeof logoutUser === 'function') logoutUser();
+                            });
+                        } else {
+                            rollbackAppData(snapshot, `Gagal mencatat transaksi massal: ` + res.message);
+                        }
+                    } else console.log(`[Sync] Batch ${payloads.length} transaksi berhasil.`);
                 })
                 .withFailureHandler((err) => rollbackAppData(snapshot, `Gagal mencatat transaksi massal: ` + err))
                 .appendTransactions(spreadsheetId, payloads);
