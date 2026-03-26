@@ -1,4 +1,4 @@
-const CACHE_NAME = 'excellearn-v5';
+const CACHE_NAME = 'excellearn-v6';
 const STATIC_ASSETS = [
   './',
   './index.html',
