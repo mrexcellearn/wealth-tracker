@@ -1,0 +1,210 @@
+/* Excellearn Wealth Tracker — Global Styles */
+
+/* Smooth Transitions */
+.transition-all-smooth {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Highlight Animation */
+@keyframes flash-highlight {
+    0% {
+        box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.4);
+        border-color: #f97316;
+    }
+
+    100% {
+        box-shadow: 0 0 0 0px rgba(249, 115, 22, 0);
+    }
+}
+
+.flash-active {
+    animation: flash-highlight 0.8s ease-out;
+}
+
+/* Global Hide Scrollbar (Keep scrollable) */
+html,
+body,
+* {
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+}
+
+/* Fix Date Picker Icon Color in Dark Mode */
+.dark input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1) brightness(0.8);
+    cursor: pointer;
+}
+
+/* ==========================================
+   ZettBOT FIX v2: iOS/iPadOS WebKit Date Picker Alignment
+   ========================================== */
+/* 1. Matikan total gaya native bawaan Apple */
+input[type="date"] {
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+    text-align: left !important;
+}
+
+/* 2. Paksa wrapper internal menjadi block (bukan flex) agar merapat ke kiri */
+input[type="date"]::-webkit-datetime-edit {
+    display: block !important;
+    text-align: left !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* 3. Paksa field teks tanggal spesifiknya juga rata kiri absolut */
+input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+    display: block !important;
+    text-align: left !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+/* Sidebar Collapse Styles (Desktop Only) */
+@media (min-width: 768px) {
+    #sidebar {
+        transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), padding 0.3s ease;
+    }
+
+    #sidebar.collapsed {
+        width: 88px !important;
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    #sidebar.collapsed .collapsible-text {
+        width: 0px;
+        opacity: 0;
+        overflow: hidden;
+        margin: 0;
+        padding: 0;
+        white-space: nowrap;
+    }
+
+    #sidebar.collapsed .nav-btn,
+    #sidebar.collapsed .brand-container,
+    #sidebar.collapsed .theme-toggle-wrap {
+        justify-content: center;
+        gap: 0;
+    }
+}
+
+/* Filter Transitions */
+.filter-expand-content {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.filter-expand-content.expanded {
+    max-height: 1000px;
+    /* Increased to accommodate 3x2 grid */
+    opacity: 1;
+    margin-top: 0.5rem;
+    overflow: visible;
+    /* Allow multiselect dropdown to show */
+}
+
+/* Custom Multiselect */
+.multiselect-container {
+    position: relative;
+}
+
+.multiselect-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    margin-top: 0.5rem;
+    max-height: 250px;
+    overflow-y: auto;
+    display: none;
+}
+
+.dark .multiselect-dropdown {
+    background: #0f172a;
+    border-color: #1e293b;
+}
+
+.multiselect-dropdown.active {
+    display: block;
+}
+
+.multiselect-item {
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.multiselect-item:hover {
+    background: #f1f5f9;
+}
+
+.dark .multiselect-item:hover {
+    background: #1e293b;
+}
+
+/* ==========================================
+   ZETTBOT AI STYLES 
+   ========================================== */
+@keyframes ai-glow {
+    0% {
+        box-shadow: 0 0 10px rgba(139, 92, 246, 0.4), 0 0 20px rgba(139, 92, 246, 0.2);
+    }
+
+    50% {
+        box-shadow: 0 0 15px rgba(139, 92, 246, 0.7), 0 0 25px rgba(139, 92, 246, 0.4);
+    }
+
+    100% {
+        box-shadow: 0 0 10px rgba(139, 92, 246, 0.4), 0 0 20px rgba(139, 92, 246, 0.2);
+    }
+}
+
+.ai-fab-glow {
+    animation: ai-glow 2s infinite alternate;
+}
+
+.typing-placeholder::placeholder {
+    color: transparent;
+    background: linear-gradient(90deg, #94a3b8 0%, #cbd5e1 50%, #94a3b8 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: shimmer-placeholder 2.5s infinite linear;
+}
+
+.dark .typing-placeholder::placeholder {
+    background: linear-gradient(90deg, #475569 0%, #64748b 50%, #475569 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+}
+
+@keyframes shimmer-placeholder {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}

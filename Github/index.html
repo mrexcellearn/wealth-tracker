@@ -1,0 +1,2592 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Excellearn Wealth Tracker - Premium financial management</title>
+
+    <!-- PWA & Mobile Optimization -->
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Excellearn">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/color/512/financial-growth-analysis.png">
+
+    <!-- Dynamically point to GAS Manifest -->
+    <link rel="manifest" href="manifest.json">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        },
+                        primary: {
+                            50: '#fff7ed',
+                            100: '#ffedd5',
+                            200: '#fed7aa',
+                            300: '#fdba74',
+                            400: '#fb923c',
+                            500: '#f97316',
+                            600: '#ea580c',
+                            700: '#c2410c',
+                            800: '#9a3412',
+                            900: '#7c2d12',
+                        },
+                        slate: { 50: '#f8fafc', 900: '#0f172a', 950: '#020617' }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- PDF Generation Libraries (jsPDF + autoTable for searchable text) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        // IFRAME DETECTION & FIX
+        window.isInIframe = (window.self !== window.top);
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.isInIframe) {
+                const main = document.querySelector('main');
+                if (main) {
+                    main.classList.remove('pb-40');
+                    main.classList.add('pb-48');
+                }
+                const sidebar = document.getElementById('sidebar');
+                if (sidebar) {
+                    sidebar.classList.add('iframe-fix');
+                }
+            }
+        });
+    </script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body
+    class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 transition-all-smooth h-screen overflow-hidden">
+    <!-- ========================================== -->
+    <!-- MODAL: PROFILE (Responsive) -->
+    <!-- ========================================== -->
+    <div id="modal-profile" class="fixed inset-0 z-[100] hidden">
+        <!-- Backdrop (Desktop) -->
+        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm hidden md:block" onclick="closeProfileModal()">
+        </div>
+
+        <!-- Modal Content -->
+        <div
+            class="absolute inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-lg md:h-auto max-h-[100dvh] bg-white dark:bg-slate-900 md:rounded-3xl shadow-2xl flex flex-col overflow-hidden animate-in fade-in zoom-in duration-200">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between p-4 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center gap-3">
+                    <button onclick="closeProfileModal()"
+                        class="md:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                        <i class="ph-bold ph-arrow-left text-xl"></i>
+                    </button>
+                    <h3 class="font-bold text-slate-800 dark:text-white" id="profile-modal-title">Profile Settings</h3>
+                </div>
+                <button onclick="closeProfileModal()"
+                    class="hidden md:flex p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-full transition-colors">
+                    <i class="ph-bold ph-x text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Scrollable Content -->
+            <div class="flex-1 overflow-y-auto p-6">
+
+                <!-- VIEW 1: PROFILE INFO -->
+                <div id="profile-view-info" class="space-y-6">
+                    <!-- User Card -->
+                    <div
+                        class="flex items-center gap-4 p-4 bg-brand-50 dark:bg-brand-900/20 rounded-2xl border border-brand-100 dark:border-brand-800/50">
+                        <div
+                            class="w-14 h-14 rounded-full bg-brand-500 flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-brand-500/20">
+                            <i class="ph-fill ph-user text-2xl"></i>
+                        </div>
+                        <div class="min-w-0">
+                            <h4 class="text-lg font-bold text-slate-900 dark:text-white truncate"
+                                id="modal-prof-display-name">Loading...</h4>
+                            <p class="text-slate-500 dark:text-slate-400 text-xs truncate"
+                                id="modal-prof-display-email">email@example.com</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">Full
+                                Name</label>
+                            <div class="relative">
+                                <i class="ph ph-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="text" id="modal-prof-fullname"
+                                    class="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-sm dark:text-white"
+                                    placeholder="Enter your full name">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-widest">Default
+                                AI Account</label>
+                            <div class="relative">
+                                <i class="ph ph-robot absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <select id="modal-prof-default-ai"
+                                    class="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all text-sm dark:text-white appearance-none">
+                                    <option value="">-- Select Default Account --</option>
+                                </select>
+                                <i
+                                    class="ph ph-caret-down absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
+                            </div>
+                            <p class="text-[10px] text-slate-500 mt-1.5 px-1 italic">Account automatically used if
+                                Gemini doesn't specify one.</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 dark:border-slate-800">
+                        <button onclick="showPasswordView()"
+                            class="w-full flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors group">
+                            <div class="flex items-center gap-3">
+                                <i
+                                    class="ph ph-lock-key text-slate-400 group-hover:text-brand-500 transition-colors"></i>
+                                <span class="text-sm font-medium text-slate-700 dark:text-slate-300">Security &
+                                    Password</span>
+                            </div>
+                            <i class="ph ph-caret-right text-slate-300 group-hover:text-slate-400 text-xs"></i>
+                        </button>
+                    </div>
+
+                    <div class="pt-4 flex gap-3">
+                        <button onclick="handleLogout()"
+                            class="flex-1 flex items-center justify-center gap-2 py-4 bg-rose-50/50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/20 rounded-2xl hover:bg-rose-100 dark:hover:bg-rose-900/20 transition-colors group text-rose-600 dark:text-rose-400 font-bold text-sm">
+                            <i class="ph ph-sign-out"></i> Logout
+                        </button>
+                        <button onclick="saveProfileSettings()"
+                            class="flex-[2] bg-brand-500 hover:bg-brand-600 text-white font-bold py-4 rounded-2xl shadow-lg shadow-brand-500/20 transition-all transform active:scale-95 flex items-center justify-center gap-2 text-sm">
+                            Update Profile
+                        </button>
+                    </div>
+                </div>
+
+                <!-- VIEW 2: CHANGE PASSWORD (ala login.html) -->
+                <div id="profile-view-password" class="hidden space-y-6">
+                    <div class="text-center">
+                        <div
+                            class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-slate-200 dark:border-slate-700 overflow-hidden">
+                            <i class="ph ph-shield-check text-3xl text-brand-500"></i>
+                        </div>
+                        <h4 class="text-xl font-bold text-slate-900 dark:text-white">Ubah Password</h4>
+                        <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">Gunakan kombinasi yang kuat & unik.
+                        </p>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-500 ml-1 uppercase tracking-tight">Password
+                                Lama</label>
+                            <div class="relative">
+                                <i class="ph ph-keyhole absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="password" id="modal-pass-old"
+                                    class="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all text-sm dark:text-white"
+                                    placeholder="••••••••">
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-500 ml-1 uppercase tracking-tight">Password
+                                Baru</label>
+                            <div class="relative">
+                                <i class="ph ph-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="password" id="modal-pass-new"
+                                    class="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all text-sm dark:text-white"
+                                    placeholder="Minimal 6 karakter">
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <label class="text-xs font-bold text-slate-500 ml-1 uppercase tracking-tight">Konfirmasi
+                                Password</label>
+                            <div class="relative">
+                                <i
+                                    class="ph ph-check-circle absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                <input type="password" id="modal-pass-conf"
+                                    class="w-full pl-11 pr-4 py-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent transition-all text-sm dark:text-white"
+                                    placeholder="Ulangi password baru">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3">
+                        <button onclick="showProfileView()"
+                            class="flex-1 bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold py-4 rounded-xl transition-all hover:bg-slate-200 dark:hover:bg-slate-700">
+                            Batal
+                        </button>
+                        <button onclick="updatePassword()" id="btn-modal-update-pass"
+                            class="flex-[2] bg-brand-500 hover:bg-brand-600 text-white font-bold py-4 rounded-xl shadow-lg shadow-brand-500/20 transition-all transform active:scale-95 flex items-center justify-center gap-2">
+                            Simpan Password
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- SPA Initial Loader -->
+    <div id="spa-loader"
+        class="fixed inset-0 z-[9999] bg-white dark:bg-slate-950 flex flex-col items-center justify-center transition-opacity duration-500">
+        <div class="w-12 h-12 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-sm font-medium text-slate-600 dark:text-slate-400">Menyiapkan Pengalaman Anda...</p>
+    </div>
+
+    <!-- AUTH SECTION -->
+    <div id="authSection" class="hidden fixed inset-0 z-[100] bg-slate-100 dark:bg-slate-950 overflow-hidden">
+<style>
+    /* Smooth transition for views - No Absolute Positioning Needed */
+    .view-section {
+        transition: opacity 0.3s ease, transform 0.3s ease;
+    }
+
+    .view-hidden {
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(10px);
+    }
+
+    .view-active {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+    }
+
+    /* Abstract shapes for left banner */
+    .shape-blob {
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0) 100%);
+        backdrop-filter: blur(10px);
+        border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+        animation: morph 8s ease-in-out infinite both alternate;
+    }
+
+    @keyframes morph {
+        0% {
+            border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+        }
+
+        100% {
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+        }
+    }
+
+    /* Shake animation for error feedback */
+    @keyframes shake {
+
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+
+        10%,
+        30%,
+        50%,
+        70%,
+        90% {
+            transform: translateX(-4px);
+        }
+
+        20%,
+        40%,
+        60%,
+        80% {
+            transform: translateX(4px);
+        }
+    }
+
+    .shake {
+        animation: shake 0.5s ease-in-out;
+    }
+</style>
+
+<!-- Wrapper Khusus untuk mengontrol padding secara aman -->
+<div id="appWrapper"
+    class="w-full h-full flex items-center justify-center p-0 md:p-6 transition-all duration-300 bg-slate-100 dark:bg-slate-950">
+
+    <!-- Kontainer Kartu Login -->
+    <div id="authCard"
+        class="w-full h-full md:h-[80vh] md:min-h-[550px] md:max-w-5xl bg-white dark:bg-slate-900 md:rounded-3xl md:shadow-2xl overflow-hidden flex relative transition-all duration-500 ease-in-out">
+
+        <!-- ========================================== -->
+        <!-- BUTTON CONTROLS (Expand & Theme) - Desktop -->
+        <!-- ========================================== -->
+        <div class="absolute top-4 right-4 z-50 hidden md:flex space-x-2">
+            <button id="expandBtn" onclick="toggleExpand()"
+                class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
+                title="Perbesar Layar">
+                <i id="expandIcon" class="fas fa-expand text-sm"></i>
+            </button>
+            <button onclick="toggleAuthTheme()"
+                class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
+                title="Ganti Tema">
+                <i id="themeIconDesktop" class="fas fa-moon text-sm"></i>
+            </button>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- LEFT PANEL (BANNER & MOTIVATION) -->
+        <!-- ========================================== -->
+        <div
+            class="hidden md:flex md:w-5/12 lg:w-1/2 relative bg-gradient-to-br from-primary-500 to-primary-700 overflow-hidden items-center justify-center p-8 lg:p-12">
+
+            <div
+                class="absolute top-0 left-0 w-96 h-96 bg-white/10 rounded-full mix-blend-overlay filter blur-3xl opacity-50 transform -translate-x-1/2 -translate-y-1/2">
+            </div>
+            <div
+                class="absolute bottom-0 right-0 w-96 h-96 bg-black/10 rounded-full mix-blend-overlay filter blur-3xl opacity-50 transform translate-x-1/3 translate-y-1/3">
+            </div>
+            <div class="shape-blob absolute w-48 h-48 border border-white/20 top-1/4 right-1/4"></div>
+
+            <div class="relative z-10 text-white max-w-sm">
+                <div
+                    class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-white/20 backdrop-blur-md mb-6 border border-white/30">
+                    <i class="fas fa-chart-pie text-2xl"></i>
+                </div>
+
+                <h1 class="text-3xl lg:text-4xl font-bold mb-4 leading-tight">
+                    Bangun Masa Depan <br />
+                    <span class="text-primary-100">Finansial Anda.</span>
+                </h1>
+
+                <p class="text-base text-primary-50 mb-8 leading-relaxed opacity-90">
+                    "Kekayaan bukanlah tentang memiliki banyak uang, melainkan tentang memiliki banyak pilihan."
+                </p>
+
+                <div class="flex items-center space-x-3">
+                    <div class="flex -space-x-2">
+                        <div class="w-8 h-8 rounded-full bg-slate-200 border border-primary-600"></div>
+                        <div class="w-8 h-8 rounded-full bg-slate-300 border border-primary-600"></div>
+                        <div
+                            class="w-8 h-8 rounded-full bg-slate-400 border border-primary-600 flex items-center justify-center text-[10px] font-bold text-white">
+                            +1k</div>
+                    </div>
+                    <p class="text-xs font-medium opacity-90">Bergabung dengan pengguna lainnya.</p>
+                </div>
+            </div>
+
+            <div class="absolute bottom-6 left-8 text-xs opacity-60">
+                &copy; 2026 Excellearn.
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- RIGHT PANEL (FORM AREA) -->
+        <!-- ========================================== -->
+        <div
+            class="w-full md:w-7/12 lg:w-1/2 flex flex-col relative h-full bg-white dark:bg-slate-900 transition-colors duration-200">
+
+            <!-- Sticky Header Mobile -->
+            <div
+                class="md:hidden px-6 py-4 flex items-center justify-between sticky top-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md z-40 border-b border-slate-100 dark:border-slate-800">
+                <div class="flex items-center space-x-3">
+                    <div
+                        class="w-8 h-8 rounded-lg bg-primary-600 text-white flex items-center justify-center shadow-lg shadow-primary-500/30">
+                        <i class="fas fa-chart-line text-sm"></i>
+                    </div>
+                    <h1 class="text-lg font-bold text-slate-900 dark:text-white tracking-tight">Excellearn</h1>
+                </div>
+                <button onclick="toggleAuthTheme()"
+                    class="flex items-center justify-center w-8 h-8 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 transition-colors"
+                    title="Ganti Tema">
+                    <i id="themeIconMobile" class="fas fa-moon text-sm"></i>
+                </button>
+            </div>
+
+            <!-- Loader Overlay (Absolute to right panel) -->
+            <div id="loaderOverlay"
+                class="absolute inset-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm z-50 flex flex-col items-center justify-center hidden">
+                <i class="fas fa-circle-notch fa-spin text-3xl text-primary-600 mb-3"></i>
+                <p class="text-xs font-medium text-slate-600 dark:text-slate-300" id="loaderText">Mengautentikasi...</p>
+            </div>
+
+            <!-- Error Toast -->
+            <div id="errorToast"
+                class="absolute top-4 left-4 right-4 z-[60] hidden transition-all duration-300 opacity-0 transform -translate-y-2">
+                <div
+                    class="bg-rose-50 dark:bg-rose-900/30 border border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300 p-3 rounded-xl text-sm font-medium flex items-start gap-2">
+                    <i class="fas fa-exclamation-circle mt-0.5 shrink-0"></i>
+                    <span id="errorToastText">Terjadi kesalahan.</span>
+                </div>
+            </div>
+
+            <!-- AREA SCROLL UTAMA -->
+            <div id="scrollArea" class="flex-1 overflow-y-auto overflow-x-hidden hide-scrollbar flex flex-col relative">
+                <div class="flex-1 flex flex-col px-6 sm:px-10 md:px-12 lg:px-16 py-8 md:py-12">
+                    <div class="my-auto w-full max-w-sm mx-auto">
+
+                        <!-- VIEW: LOGIN -->
+                        <div id="loginView" class="view-section view-active" style="display: block;">
+                            <div class="mb-8">
+                                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">Selamat Datang</h2>
+                                <p class="text-sm text-slate-500 dark:text-slate-400">Silakan masuk ke akun Anda.</p>
+                            </div>
+
+                            <form id="loginForm" onsubmit="handleAuth(event, 'login')">
+                                <div class="mb-4">
+                                    <label
+                                        class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Email</label>
+                                    <input type="email" id="loginEmail" required
+                                        class="w-full px-4 py-3 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all text-slate-900 dark:text-white"
+                                        placeholder="contoh@email.com">
+                                </div>
+
+                                <div class="mb-5">
+                                    <label
+                                        class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Password</label>
+                                    <input type="password" id="loginPassword" required
+                                        class="w-full px-4 py-3 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all text-slate-900 dark:text-white"
+                                        placeholder="••••••••">
+                                </div>
+
+                                <div class="flex items-center justify-between mb-8 text-xs sm:text-sm">
+                                    <label class="flex items-center cursor-pointer group">
+                                        <input type="checkbox" id="rememberMe" checked
+                                            class="h-4 w-4 text-primary-600 focus:ring-primary-500 border-slate-300 rounded cursor-pointer">
+                                        <span
+                                            class="ml-2 text-slate-600 dark:text-slate-400 group-hover:text-slate-900 dark:group-hover:text-white transition-colors">Tetap
+                                            masuk</span>
+                                    </label>
+                                    <button type="button" onclick="switchView('forgot')"
+                                        class="font-bold text-primary-600 hover:text-primary-700 hover:underline transition-colors">Lupa
+                                        Password?</button>
+                                </div>
+
+                                <button type="submit" id="btnLogin"
+                                    class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md shadow-primary-500/20 transition-all transform hover:-translate-y-0.5 text-sm flex items-center justify-center gap-2">
+                                    <span id="btnLoginText">Masuk Dashboard</span>
+                                </button>
+                            </form>
+
+                            <div class="mt-4 border-t border-slate-200 dark:border-slate-800 pt-4">
+                                <button type="button" onclick="handleDemoLogin()"
+                                    class="w-full bg-slate-50 dark:bg-slate-800/80 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 font-medium py-3 px-4 rounded-xl transition-all text-sm flex items-center justify-center gap-2 group">
+                                    <i
+                                        class="ph-bold ph-lightning text-amber-500 group-hover:scale-110 transition-transform"></i>
+                                    Coba Demo Sekarang
+                                </button>
+                            </div>
+
+                            <div class="mt-6 text-center">
+                                <p class="text-sm text-slate-600 dark:text-slate-400">
+                                    Belum punya database?
+                                    <button onclick="switchView('register')"
+                                        class="font-bold text-primary-600 hover:text-primary-700 hover:underline transition-colors ml-1">Setup
+                                        Sekarang</button>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- VIEW: REGISTER -->
+                        <div id="registerView" class="view-section view-hidden" style="display: none;">
+                            <button onclick="switchView('login')" type="button"
+                                class="flex items-center text-xs font-medium text-slate-500 hover:text-primary-600 dark:hover:text-primary-400 mb-6 transition-colors group">
+                                <i
+                                    class="fas fa-arrow-left mr-1.5 transform group-hover:-translate-x-1 transition-transform"></i>
+                                Kembali ke Login
+                            </button>
+
+                            <div class="mb-6">
+                                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">Setup Database</h2>
+                                <p class="text-slate-500 dark:text-slate-400 text-sm">Simpan data Anda aman di Google
+                                    Drive.</p>
+                            </div>
+
+                            <div class="relative mb-4">
+                                <div
+                                    class="absolute top-4 bottom-4 left-[15px] w-[2px] bg-slate-200 dark:bg-slate-700 z-0">
+                                </div>
+                                <div class="space-y-6">
+                                    <div class="relative flex items-start space-x-4 z-10">
+                                        <div
+                                            class="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-400 text-sm font-bold border-2 border-primary-200 dark:border-primary-800 shadow-sm">
+                                            1</div>
+                                        <div class="pt-1">
+                                            <h3 class="font-bold text-sm text-slate-800 dark:text-white mb-1">Salin
+                                                Template</h3>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Klik tombol di
+                                                bawah untuk menyalin template ke Google Drive Anda.</p>
+                                            <a href="https://docs.google.com/spreadsheets/d/1XbP_ZZjREDOZZ9uHXP6hNfbqwVP3Lf8U3SdzoIxHWHo/copy"
+                                                target="_blank"
+                                                class="inline-flex items-center text-xs font-semibold bg-white dark:bg-slate-800 text-primary-600 dark:text-primary-400 border border-slate-200 dark:border-slate-700 shadow-sm py-2 px-3.5 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors">
+                                                <i class="fas fa-copy mr-1.5"></i> Salin Template
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="relative flex items-start space-x-4 z-10">
+                                        <div
+                                            class="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-400 text-sm font-bold border-2 border-primary-200 dark:border-primary-800 shadow-sm">
+                                            2</div>
+                                        <div class="pt-1">
+                                            <h3 class="font-bold text-sm text-slate-800 dark:text-white mb-1">Buka Akses
+                                                Link</h3>
+                                            <p
+                                                class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-1.5">
+                                                Klik <b>Share</b> di file hasil salinan. Ubah akses menjadi
+                                                <b>"Anyone with the link"</b> → <b>"Editor"</b>, lalu salin linknya.
+                                            </p>
+                                            <div class="flex flex-col gap-2 mt-2">
+                                                <div
+                                                    class="flex items-start gap-1.5 px-2.5 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-100 dark:border-emerald-800/50 rounded-lg">
+                                                    <i
+                                                        class="fas fa-shield-alt text-[10px] text-emerald-600 dark:text-emerald-400 mt-0.5"></i>
+                                                    <p
+                                                        class="text-[9px] text-emerald-700 dark:text-emerald-300 leading-tight font-medium">
+                                                        Link Anda <b>terenkripsi</b> dan tersimpan aman di Firebase.
+                                                        Tidak ada siapapun — termasuk admin — yang bisa mengakses
+                                                        spreadsheet Anda.</p>
+                                                </div>
+                                                <div
+                                                    class="flex items-start gap-1.5 px-2.5 py-1.5 bg-amber-50 dark:bg-amber-900/20 border border-amber-100 dark:border-amber-800/50 rounded-lg">
+                                                    <i
+                                                        class="fas fa-exclamation-triangle text-[10px] text-amber-600 dark:text-amber-400 mt-0.5"></i>
+                                                    <p
+                                                        class="text-[9px] text-amber-700 dark:text-amber-300 leading-tight font-medium">
+                                                        Jaga link spreadsheet Anda. Jangan bagikan ke orang lain
+                                                        untuk menjaga keamanan data finansial Anda.</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="relative flex items-start space-x-4 z-10">
+                                        <div
+                                            class="flex shrink-0 items-center justify-center w-8 h-8 rounded-full bg-white dark:bg-slate-900 text-primary-600 dark:text-primary-400 text-sm font-bold border-2 border-primary-200 dark:border-primary-800 shadow-sm">
+                                            3</div>
+                                        <div class="pt-1 w-full">
+                                            <h3 class="font-bold text-sm text-slate-800 dark:text-white mb-1">Hubungkan
+                                                Database</h3>
+                                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">Paste link file
+                                                yang sudah disalin, lalu buat akun.</p>
+                                            <form id="registerForm" onsubmit="handleAuth(event, 'register')"
+                                                class="space-y-4">
+                                                <div class="mb-4">
+                                                    <label
+                                                        class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">URL
+                                                        Excel Database</label>
+                                                    <input type="url" id="regSheetUrl" required
+                                                        class="w-full px-4 py-3 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all text-slate-900 dark:text-white"
+                                                        placeholder="https://docs.google.com/spreadsheets/d/...">
+                                                </div>
+                                                <div class="mb-4">
+                                                    <label
+                                                        class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Email
+                                                        Akun</label>
+                                                    <input type="email" id="regEmail" required
+                                                        class="w-full px-4 py-3 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all text-slate-900 dark:text-white"
+                                                        placeholder="contoh@email.com">
+                                                </div>
+                                                <div class="mb-5">
+                                                    <label
+                                                        class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Password</label>
+                                                    <input type="password" id="regPassword" required minlength="6"
+                                                        class="w-full px-4 py-3 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all text-slate-900 dark:text-white"
+                                                        placeholder="••••••••">
+                                                </div>
+                                                <div class="mb-6">
+                                                    <label
+                                                        class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5 flex justify-between">
+                                                        <span>Kode Lisensi</span>
+                                                        <a href="https://excellearn.online" target="_blank"
+                                                            class="text-primary-600 hover:text-primary-700 hover:underline">Beli
+                                                            Lisensi ✨</a>
+                                                    </label>
+                                                    <input type="text" id="regLicenseKey" required
+                                                        class="w-full px-4 py-3 text-sm font-mono tracking-wider bg-primary-50 dark:bg-primary-900/10 border border-primary-200 dark:border-primary-800/50 rounded-lg focus:ring-2 focus:ring-primary-500 outline-none transition-all text-primary-900 dark:text-primary-100 placeholder-primary-300 dark:placeholder-primary-700/50 uppercase"
+                                                        placeholder="EXCL-XXXX-XXXX"
+                                                        oninput="this.value = this.value.toUpperCase()">
+                                                </div>
+                                                <button type="submit" id="btnRegister"
+                                                    class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3 px-4 rounded-xl shadow-md shadow-primary-500/20 transition-all transform hover:-translate-y-0.5 text-sm flex items-center justify-center gap-2">
+                                                    <span id="btnRegisterText">Selesaikan Setup</span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- VIEW: FORGOT PASSWORD -->
+                        <div id="forgotView" class="view-section view-hidden" style="display: none;">
+                            <button onclick="switchView('login')" type="button"
+                                class="flex items-center text-xs font-medium text-slate-500 hover:text-primary-600 dark:hover:text-primary-400 mb-6 transition-colors group">
+                                <i
+                                    class="fas fa-arrow-left mr-1.5 transform group-hover:-translate-x-1 transition-transform"></i>
+                                Kembali ke Login
+                            </button>
+
+                            <!-- Step 1: Request Reset Link -->
+                            <div id="fp-step-1">
+                                <div class="mb-6">
+                                    <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-1">Lupa Password?
+                                    </h2>
+                                    <p class="text-slate-500 dark:text-slate-400 text-sm">Masukkan email Anda. Kami akan
+                                        mengirim link reset password.</p>
+                                </div>
+                                <form onsubmit="handleForgotPasswordRequest(event)" class="space-y-4">
+                                    <div class="relative">
+                                        <div
+                                            class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                                            <i class="fas fa-envelope text-sm"></i>
+                                        </div>
+                                        <input type="email" id="fpEmail" required
+                                            class="w-full pl-10 pr-4 py-3 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all outline-none text-sm dark:text-white"
+                                            placeholder="Contoh: user@email.com">
+                                    </div>
+                                    <button type="submit" id="btnFPRequest"
+                                        class="w-full bg-primary-600 hover:bg-primary-700 text-white font-semibold py-3.5 px-4 rounded-xl shadow-md transition-all transform hover:-translate-y-0.5 text-sm flex items-center justify-center gap-2">
+                                        <span id="btnFPRequestText">Kirim Link Reset</span>
+                                    </button>
+                                </form>
+                            </div>
+
+
+
+                            <div class="mt-8 pt-6 border-t border-slate-100 dark:border-slate-800 text-center">
+                                <p class="text-[10px] text-slate-400 dark:text-slate-500 mb-2">Butuh bantuan? Hubungi
+                                    kami di</p>
+                                <a href="https://wa.me/6285161381710" target="_blank"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400 rounded-full text-xs font-bold hover:bg-green-100 dark:hover:bg-green-900/40 transition-colors">
+                                    <i class="fab fa-whatsapp"></i> WhatsApp Admin
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+    <!-- APP VIEW -->
+    <div id="appView" class="hidden w-full h-screen overflow-hidden flex flex-col md:flex-row">
+
+        <!-- Desktop Sidebar & Mobile Bottom Nav Container -->
+        <nav id="sidebar"
+            class="bg-white dark:bg-slate-900 w-full md:w-56 md:h-screen fixed bottom-0 md:static z-50 flex flex-row md:flex-col justify-around md:justify-start px-2 pt-3 pb-[calc(1.25rem+env(safe-area-inset-bottom))] md:p-4 md:pt-8 md:px-5 shadow-[0_-4px_20px_rgba(0,0,0,0.05)] md:shadow-none border-t md:border-r border-slate-200 dark:border-slate-800 hide-scrollbar gap-1 md:gap-0 transition-all-smooth">
+
+            <!-- Brand / Logo (Clickable for Collapse) -->
+            <div class="hidden md:flex items-center gap-3 mb-8 shrink-0 cursor-pointer group brand-container transition-all-smooth"
+                onclick="toggleSidebar()" title="Toggle Sidebar">
+                <div
+                    class="w-9 h-9 rounded-lg bg-brand-500 flex items-center justify-center text-white shadow-lg shadow-brand-500/30 group-hover:scale-105 transition-transform shrink-0">
+                    <i class="ph-bold ph-chart-line-up text-lg"></i>
+                </div>
+                <h1 class="text-lg font-bold tracking-tight collapsible-text transition-all-smooth">Excellearn</h1>
+            </div>
+
+            <!-- === DESKTOP LINKS (Hidden on Mobile) === -->
+            <div class="hidden md:flex flex-col flex-1 overflow-y-auto hide-scrollbar pr-1 -mr-1 gap-1">
+                <a href="#" onclick="showTab('dashboard')" data-tab="dashboard"
+                    class="nav-btn flex active flex-row items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 text-brand-500 font-medium transition-all-smooth shrink-0">
+                    <i class="ph-fill ph-squares-four text-lg shrink-0"></i>
+                    <span class="text-sm collapsible-text transition-all-smooth text-nowrap">Dashboard</span>
+                </a>
+                <a href="#" onclick="showTab('transactions')" data-tab="transactions"
+                    class="nav-btn flex flex-row items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-medium transition-all-smooth shrink-0">
+                    <i class="ph ph-swap text-lg shrink-0"></i>
+                    <span class="text-sm collapsible-text transition-all-smooth text-nowrap">Transaksi</span>
+                </a>
+                <a href="#" onclick="showTab('budgets')" data-tab="budgets"
+                    class="nav-btn flex flex-row items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-medium transition-all-smooth shrink-0">
+                    <i class="ph ph-wallet text-lg shrink-0"></i>
+                    <span class="text-sm collapsible-text transition-all-smooth text-nowrap">Budget</span>
+                </a>
+                <a href="#" onclick="showTab('goals')" data-tab="goals"
+                    class="nav-btn flex flex-row items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-medium transition-all-smooth shrink-0">
+                    <i class="ph ph-target text-lg shrink-0"></i>
+                    <span class="text-sm collapsible-text transition-all-smooth text-nowrap">Goal</span>
+                </a>
+                <a href="#" onclick="showTab('assets')" data-tab="assets"
+                    class="nav-btn flex flex-row items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-medium transition-all-smooth shrink-0">
+                    <i class="ph ph-buildings text-lg shrink-0"></i>
+                    <span class="text-sm collapsible-text transition-all-smooth text-nowrap">Aset</span>
+                </a>
+                <a href="#" onclick="showTab('debts')" data-tab="debts"
+                    class="nav-btn flex flex-row items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-medium transition-all-smooth shrink-0">
+                    <i class="ph ph-hand-coins text-lg shrink-0"></i>
+                    <span class="text-sm collapsible-text transition-all-smooth text-nowrap">Utang</span>
+                </a>
+                <a href="#" onclick="showTab('subscriptions')" data-tab="subscriptions"
+                    class="nav-btn flex flex-row items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-medium transition-all-smooth shrink-0">
+                    <i class="ph ph-arrows-clockwise text-lg shrink-0"></i>
+                    <span class="text-sm collapsible-text transition-all-smooth text-nowrap">Langganan</span>
+                </a>
+                <a href="#" onclick="showTab('accounts')" data-tab="accounts"
+                    class="nav-btn flex flex-row items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-medium transition-all-smooth shrink-0">
+                    <i class="ph ph-bank text-lg shrink-0"></i>
+                    <span class="text-sm collapsible-text transition-all-smooth text-nowrap">Akun</span>
+                </a>
+                <a href="#" onclick="showTab('categories')" data-tab="categories"
+                    class="nav-btn flex flex-row items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800/50 text-slate-500 dark:text-slate-400 font-medium transition-all-smooth shrink-0">
+                    <i class="ph ph-tag text-lg shrink-0"></i>
+                    <span class="text-sm collapsible-text transition-all-smooth text-nowrap">Kategori</span>
+                </a>
+                <div class="h-px bg-slate-200 dark:bg-slate-700/50 my-2 mx-3 nav-admin-item hidden"></div>
+                <a href="#" onclick="showTab('admin')" data-tab="admin"
+                    class="nav-btn nav-admin-item hidden flex flex-row items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-red-50 dark:hover:bg-red-900/20 text-slate-500 dark:text-slate-400 font-medium transition-all-smooth shrink-0 group">
+                    <i class="ph-bold ph-shield-check text-lg shrink-0 text-red-500"></i>
+                    <span
+                        class="text-sm font-bold collapsible-text transition-all-smooth text-nowrap text-red-500 group-hover:text-red-600">Admin
+                        Panel</span>
+                </a>
+            </div>
+
+            <!-- === MOBILE LINKS (Bottom Nav) === -->
+            <a href="#" onclick="showTab('dashboard')" data-group="dashboard"
+                class="nav-btn-mobile active flex md:hidden flex-col items-center justify-center gap-1 w-full text-brand-500 transition-colors">
+                <i class="ph-fill ph-squares-four text-[24px]"></i>
+                <span class="text-[10px] font-medium">Beranda</span>
+            </a>
+            <a href="#" onclick="showTab('transactions')" data-group="transactions"
+                class="nav-btn-mobile flex md:hidden flex-col items-center justify-center gap-1 w-full text-slate-500 dark:text-slate-400 transition-colors">
+                <i class="ph ph-swap text-[24px]"></i>
+                <span class="text-[10px] font-medium">Transaksi</span>
+            </a>
+            <a href="#" onclick="openMobileMenu('planning')" data-group="planning"
+                class="nav-btn-mobile flex md:hidden flex-col items-center justify-center gap-1 w-full text-slate-500 dark:text-slate-400 transition-colors">
+                <i class="ph ph-target text-[24px]"></i>
+                <span class="text-[10px] font-medium">Rencana</span>
+            </a>
+            <a href="#" onclick="openMobileMenu('portfolio')" data-group="portfolio"
+                class="nav-btn-mobile flex md:hidden flex-col items-center justify-center gap-1 w-full text-slate-500 dark:text-slate-400 transition-colors">
+                <i class="ph ph-buildings text-[24px]"></i>
+                <span class="text-[10px] font-medium">Aset</span>
+            </a>
+            <a href="#" onclick="openMobileMenu('more')" data-group="more"
+                class="nav-btn-mobile flex md:hidden flex-col items-center justify-center gap-1 w-full text-slate-500 dark:text-slate-400 transition-colors">
+                <i class="ph ph-dots-three-circle text-[24px]"></i>
+                <span class="text-[10px] font-medium">Lainnya</span>
+            </a>
+
+            <!-- Sidebar Footer (Desktop Only) -->
+            <div class="hidden md:flex flex-col mt-auto pt-4 border-t border-slate-200 dark:border-slate-800 gap-2">
+                <!-- Theme Toggle Desktop -->
+                <button onclick="toggleTheme()"
+                    class="flex items-center gap-3 w-full px-4 py-3 text-slate-500 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-xl transition-all-smooth shrink-0 group">
+                    <div class="w-8 h-8 flex items-center justify-center shrink-0">
+                        <i class="ph-bold ph-sun-dim text-lg group-dark:hidden"></i>
+                        <i class="ph-bold ph-moon text-lg hidden group-dark:block"></i>
+                    </div>
+                    <span id="theme-toggle-text"
+                        class="text-sm font-medium collapsible-text transition-all-smooth text-nowrap">Dark Mode</span>
+                </button>
+
+                <button onclick="openProfileModal()"
+                    class="flex items-center gap-3 w-full px-4 py-3 text-slate-500 hover:text-brand-500 hover:bg-brand-50 dark:hover:bg-brand-900/20 rounded-xl transition-all-smooth shrink-0 group">
+                    <div
+                        class="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 shrink-0 group-hover:bg-brand-100 dark:group-hover:bg-brand-900/50 group-hover:text-brand-600 transition-colors">
+                        <i class="ph-bold ph-user-circle text-xl"></i>
+                    </div>
+                    <span class="font-medium text-sm collapsible-text transition-all-smooth text-nowrap">Profile</span>
+                </button>
+                <!-- App Versioning -->
+                <div
+                    class="text-center text-[10px] text-slate-400 font-mono shrink-0 collapsible-text transition-all-smooth mt-2">
+                    v4.1.3
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main id="main-content" class="flex-1 p-4 md:p-6 pb-40 md:pb-6 overflow-y-auto w-full relative">
+            
+            <!-- [ZETTBOT] Pull to Refresh Indicator -->
+            <div id="pull-refresh" class="absolute top-0 left-0 w-full flex flex-col items-center justify-center -translate-y-full transition-transform duration-300 pointer-events-none z-40 py-4">
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-full w-10 h-10 flex items-center justify-center shadow-lg">
+                    <i id="pull-icon" class="ph-bold ph-arrow-down text-brand-500 transition-transform"></i>
+                    <i id="refresh-spinner" class="ph-bold ph-spinner animate-spin text-brand-500 hidden"></i>
+                </div>
+                <span id="pull-text" class="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Tarik untuk Update</span>
+            </div>
+
+            <!-- Mobile Header -->
+            <div class="flex md:hidden items-center justify-between mb-6">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-brand-500 flex items-center justify-center text-white">
+                        <i class="ph-bold ph-chart-line-up text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold leading-none">Excellearn</h1>
+                        <span class="text-[10px] text-slate-500 font-mono block mt-0.5">v4.1.3</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <!-- Theme Toggle Mobile -->
+                    <button onclick="toggleTheme()"
+                        class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 border border-slate-200 dark:border-slate-700 transition-transform active:scale-90">
+                        <i class="ph-bold ph-sun-dim block dark:hidden"></i>
+                        <i class="ph-bold ph-moon hidden dark:block"></i>
+                    </button>
+                    <!-- Profile Mobile -->
+                    <button onclick="openProfileModal()"
+                        class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-500 border border-slate-200 dark:border-slate-700 hover:scale-105 transition-transform shrink-0">
+                        <i class="ph-bold ph-user-circle text-xl"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- TAB: DASHBOARD -->
+            <section id="tab-dashboard" class="tab-content block animate-fade-in">
+                <div class="flex justify-between items-end mb-6">
+                    <div>
+                        <h2 class="text-xl font-bold">Ringkasan Finansial</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-xs mt-1">Pantau kekayaan bersih dan
+                            aktivitasmu.
+                        </p>
+                    </div>
+                    <button onclick="openTransactionModal()"
+                        class="hidden md:flex bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-brand-500/30 items-center gap-2 transition-all-smooth transform hover:scale-105 text-sm">
+                        <i class="ph-bold ph-plus"></i> <span>Transaksi Baru</span>
+                    </button>
+                </div>
+
+                <!-- Row 1: Net Worth Widget -->
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mb-4 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-brand-500/10 rounded-full blur-3xl -mr-10 -mt-10">
+                    </div>
+                    <div class="flex items-center gap-2 mb-1">
+                        <h3 class="text-sm font-medium text-slate-500 dark:text-slate-400">Total Kekayaan Bersih</h3>
+                        <button onclick="toggleHideBalance()"
+                            class="text-slate-400 hover:text-brand-500 transition-colors focus:outline-none"
+                            title="Sembunyikan/Tampilkan Saldo">
+                            <i class="ph-bold ph-eye text-lg" id="icon-hide-balance"></i>
+                        </button>
+                    </div>
+                    <h1 class="text-2xl md:text-3xl font-bold tracking-tight mb-4 transition-all-smooth"
+                        id="ui-networth">Rp
+                        0</h1>
+
+                    <div class="flex gap-4 text-sm mt-4">
+                        <div>
+                            <span class="block text-slate-500 dark:text-slate-400">Total Liquid & Aset</span>
+                            <span class="font-medium text-emerald-500 transition-all-smooth" id="ui-assets">Rp 0</span>
+                        </div>
+                        <div class="w-px bg-slate-200 dark:bg-slate-700"></div>
+                        <div>
+                            <span class="block text-slate-500 dark:text-slate-400">Total Hutang</span>
+                            <span class="font-medium text-rose-500 transition-all-smooth" id="ui-debts">Rp 0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 2: Charts & Recent Trx -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                    <!-- Top Spending -->
+                    <div
+                        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col">
+                        <h3 class="text-base font-bold flex items-center gap-2 mb-4"><i
+                                class="ph-fill ph-chart-pie-slice text-brand-500"></i> Pengeluaran Bulan Ini</h3>
+                        <div class="flex-1 relative min-h-[200px] flex items-center justify-center">
+                            <canvas id="topSpendChart"></canvas>
+                            <div id="ui-dashboard-top-spend-empty" class="text-center hidden w-full">
+                                <i
+                                    class="ph-fill ph-chart-pie-slice text-4xl text-slate-300 dark:text-slate-700 mb-2"></i>
+                                <p class="text-sm text-slate-500">Belum ada pengeluaran bulan ini.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Trx -->
+                    <div
+                        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col">
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-base font-bold flex items-center gap-2"><i
+                                    class="ph-fill ph-clock-counter-clockwise text-blue-500"></i> Transaksi Terakhir
+                            </h3>
+                            <button onclick="showTab('transactions')"
+                                class="text-sm font-bold text-blue-500 hover:text-blue-600 transition-colors">Lihat
+                                Semua</button>
+                        </div>
+                        <div id="ui-dashboard-recent-trx" class="space-y-3 flex-1 flex flex-col justify-center">
+                            <!-- Skeleton Loaders -->
+                            <div class="animate-pulse flex gap-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                                <div class="flex-1 space-y-2">
+                                    <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                                    <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
+                                </div>
+                            </div>
+                            <div class="animate-pulse flex gap-3">
+                                <div class="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                                <div class="flex-1 space-y-2">
+                                    <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                                    <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Budget & Goals -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
+                    <!-- Budget Pacing (Compact) -->
+                    <div
+                        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col">
+                        <div class="flex justify-between items-center mb-5">
+                            <h3 class="text-base font-bold flex items-center gap-2"><i
+                                    class="ph-fill ph-wallet text-brand-500"></i>
+                                Budget Limit</h3>
+                            <button onclick="showTab('budgets')"
+                                class="text-sm font-bold text-brand-500 hover:text-brand-600 transition-colors">Cek
+                                Semua</button>
+                        </div>
+                        <div id="ui-dashboard-budgets" class="space-y-4 flex-1">
+                            <!-- Skeleton Loaders -->
+                            <div class="animate-pulse flex flex-col gap-2">
+                                <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/3"></div>
+                                <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded w-full"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Goals (Compact) -->
+                    <div
+                        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 flex flex-col">
+                        <div class="flex justify-between items-center mb-5">
+                            <h3 class="text-base font-bold flex items-center gap-2"><i
+                                    class="ph-fill ph-target text-brand-500"></i> Goals
+                                Terdekat</h3>
+                            <button onclick="showTab('goals')"
+                                class="text-sm font-bold text-brand-500 hover:text-brand-600 transition-colors">Lihat
+                                Semua</button>
+                        </div>
+                        <div id="ui-dashboard-goals" class="space-y-4 flex-1">
+                            <!-- Skeleton Loaders -->
+                            <div class="animate-pulse flex flex-col gap-2">
+                                <div class="h-4 bg-slate-200 dark:bg-slate-700 rounded w-1/3"></div>
+                                <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded w-full"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 4: Audit Logs -->
+                <div class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-base font-bold">Jejak Audit Terakhir</h3>
+                        <i class="ph-fill ph-shield-check text-blue-500 text-xl"></i>
+                    </div>
+                    <ul id="ui-audits" class="space-y-3">
+                        <!-- Skeleton Loaders -->
+                        <li class="animate-pulse flex gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-200 dark:bg-slate-700"></div>
+                            <div class="flex-1 space-y-2">
+                                <div class="h-3 bg-slate-200 dark:bg-slate-700 rounded w-3/4"></div>
+                                <div class="h-2 bg-slate-200 dark:bg-slate-700 rounded w-1/2"></div>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- TAB: TRANSACTIONS -->
+            <section id="tab-transactions" class="tab-content hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold">Histori Transaksi</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Lacak dan kelola semua mutasi
+                            keuanganmu.
+                        </p>
+                    </div>
+                    <div class="flex gap-2 w-full md:w-auto">
+                        <button onclick="exportTransactionsPDF()"
+                            class="flex-1 md:flex-none bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 hover:border-rose-200 px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-colors font-medium">
+                            <i class="ph-bold ph-file-pdf"></i> <span>Cetak PDF</span>
+                        </button>
+                        <button onclick="openTransactionModal()"
+                            class="hidden md:flex bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-brand-500/30 items-center justify-center gap-2 transition-all-smooth">
+                            <i class="ph-bold ph-plus"></i> <span>Tambah Baru</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filters Row -->
+                <div id="trx-filter-container"
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mb-6 relative transition-all duration-300">
+
+                    <!-- Filter Header -->
+                    <div
+                        class="flex justify-between items-center mb-1 md:mb-4 border-b border-slate-100 dark:border-slate-800 pb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
+                                <i class="ph-bold ph-funnel mr-1"></i> Filter Pencarian
+                            </span>
+                            <!-- Mobile Summary (Visible when collapsed on mobile) -->
+                            <span id="trx-filter-summary"
+                                class="hidden md:hidden text-[10px] text-slate-400 font-medium truncate max-w-[150px]"></span>
+                        </div>
+
+                        <div class="flex items-center gap-2">
+                            <!-- Toggle Button (Desktop/Tablet) -->
+                            <button onclick="toggleAllFilters()" id="btn-toggle-filters"
+                                class="hidden md:flex text-xs font-bold text-slate-500 hover:text-brand-500 bg-slate-50 hover:bg-brand-50 dark:bg-slate-800 dark:hover:bg-brand-900/30 px-2 py-1 rounded-md transition-colors items-center gap-1">
+                                <i class="ph-bold ph-caret-down transition-transform" id="icon-toggle-filters"></i>
+                                <span>Semua Filter</span>
+                            </button>
+                            <!-- Mobile Toggle Button -->
+                            <button onclick="toggleAllFilters()"
+                                class="md:hidden flex text-xs font-bold text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md items-center gap-1">
+                                <i class="ph-bold ph-funnel"></i>
+                                <span id="mobile-filter-badge"
+                                    class="hidden w-4 h-4 bg-brand-500 text-white text-[8px] flex items-center justify-center rounded-full">0</span>
+                            </button>
+                            <button onclick="resetTrxFilters()"
+                                class="text-xs font-bold text-slate-400 hover:text-rose-500 bg-slate-50 hover:bg-rose-50 dark:bg-slate-800 dark:hover:bg-rose-900/30 px-2 py-1 rounded-md transition-colors flex items-center gap-1">
+                                <i class="ph-bold ph-x"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Filter Content -->
+                    <div id="trx-filter-content">
+                        <!-- Row 1: Only Search Note by default -->
+                        <div class="pt-1 md:pt-0">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 mb-1 flex items-center gap-1">
+                                    <i class="ph-bold ph-magnifying-glass"></i> Cari Catatan
+                                </label>
+                                <div class="relative">
+                                    <i
+                                        class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <input type="text" id="main-filter-note" oninput="renderTransactions()"
+                                        placeholder="Ketik catatan atau nominal..."
+                                        class="w-full pl-9 pr-3 py-2.5 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-brand-500/20 transition-all shadow-sm">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Advanced Filters Drawer -->
+                        <div id="trx-filter-extra" class="filter-expand-content">
+                            <div id="trx-filter-extra-row"
+                                class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 border-t border-slate-100 dark:border-slate-800 pt-4 mt-4">
+                                
+                                <!-- Category -->
+                                <div class="multiselect-container" id="category-filter-container">
+                                    <label class="block text-xs font-medium text-slate-500 mb-1 flex items-center gap-1">
+                                        <i class="ph-bold ph-tag"></i> Pilih Kategori
+                                    </label>
+                                    <div onclick="toggleCategoryDropdown()" id="category-multiselect-trigger"
+                                        class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm flex justify-between items-center cursor-pointer hover:border-brand-300 transition-all">
+                                        <span id="category-multiselect-label" class="truncate text-slate-500">Semua Kategori</span>
+                                        <i class="ph-bold ph-caret-down text-[10px] text-slate-400"></i>
+                                    </div>
+                                    <div id="category-multiselect-dropdown" class="multiselect-dropdown">
+                                        <!-- Will be populated by JS -->
+                                    </div>
+                                </div>
+
+                                <!-- Account Filter (NEW) -->
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-500 mb-1 flex items-center gap-1">
+                                        <i class="ph-bold ph-bank"></i> Berdasarkan Akun
+                                    </label>
+                                    <select id="main-filter-account" onchange="renderTransactions()"
+                                        class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-brand-500/20 transition-all font-medium">
+                                        <option value="All">Semua Akun</option>
+                                    </select>
+                                </div>
+
+                                <!-- Quick Range -->
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-500 mb-1 flex items-center gap-1">
+                                        <i class="ph-bold ph-calendar"></i> Rentang Cepat
+                                    </label>
+                                    <select id="main-filter-quick" onchange="applyQuickDate()"
+                                        class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-brand-500/20 transition-all font-medium">
+                                        <option value="All">Semua Waktu</option>
+                                        <option value="Today">Hari Ini</option>
+                                        <option value="Yesterday">Kemarin</option>
+                                        <option value="ThisWeek">Minggu Ini</option>
+                                        <option value="ThisMonth">Bulan Ini</option>
+                                        <option value="LastMonth">Bulan Lalu</option>
+                                    </select>
+                                </div>
+
+                                <!-- Type -->
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-500 mb-1 flex items-center gap-1">
+                                        <i class="ph-bold ph-arrows-left-right"></i> Tipe Transaksi
+                                    </label>
+                                    <select id="main-filter-type" onchange="renderTransactions()"
+                                        class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-brand-500/20 transition-all font-medium">
+                                        <option value="All">Semua Tipe</option>
+                                        <option value="Income">Pemasukan</option>
+                                        <option value="Expense">Pengeluaran</option>
+                                        <option value="Transfer">Transfer</option>
+                                    </select>
+                                </div>
+
+                                <!-- Budget -->
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-500 mb-1 flex items-center gap-1">
+                                        <i class="ph-bold ph-wallet"></i> Berdasarkan Budget
+                                    </label>
+                                    <select id="main-filter-budget" onchange="handleBudgetFilterChange()"
+                                        class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-brand-500/20 transition-all font-medium">
+                                        <option value="All">Semua Budget</option>
+                                    </select>
+                                </div>
+
+                                <!-- Custom Date Range -->
+                                <div>
+                                    <label class="block text-xs font-medium text-slate-500 mb-1 flex items-center gap-1">
+                                        <i class="ph-bold ph-calendar-blank"></i> Rentang Tanggal
+                                    </label>
+                                    <div class="grid grid-cols-2 gap-2">
+                                        <input type="date" id="main-filter-start" onchange="handleStartDateChange()"
+                                            class="w-full px-2 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-[11px] focus:ring-2 focus:ring-brand-500/20 transition-all">
+                                        <input type="date" id="main-filter-end" onchange="renderTransactions()" disabled
+                                            class="w-full px-2 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-[11px] disabled:opacity-50 disabled:cursor-not-allowed transition-all">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Container untuk Hasil Render -->
+                <div id="ui-main-transactions"></div>
+            </section>
+
+            <!-- TAB: BUDGETS -->
+            <section id="tab-budgets" class="tab-content hidden">
+                <div class="flex justify-between items-end mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold">Manajemen Budget</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Alokasikan dana dan pantau kecepatan
+                            pengeluaranmu.
+                        </p>
+                    </div>
+                    <button onclick="openBudgetModal()"
+                        class="hidden md:flex bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-brand-500/30 items-center gap-2 transition-all-smooth transform hover:scale-105">
+                        <i class="ph-bold ph-plus"></i> <span>Tambah Budget</span>
+                    </button>
+                </div>
+                <div id="ui-budgets-container"></div>
+            </section>
+
+            <!-- TAB: SUBSCRIPTIONS -->
+            <section id="tab-subscriptions" class="tab-content hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold">Langganan & Tagihan</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Kelola layanan rutin dan cegah
+                            kebocoran
+                            tagihan.
+                        </p>
+                    </div>
+                    <button onclick="openSubscriptionModal()"
+                        class="hidden md:flex bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-blue-500/30 items-center justify-center gap-2 transition-all-smooth md:w-auto">
+                        <i class="ph-bold ph-plus"></i> <span>Tambah Baru</span>
+                    </button>
+                </div>
+
+                <!-- Consistent Dropdown Filter -->
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mb-6 md:w-1/3">
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Filter Tampilan</label>
+                    <select id="main-sub-filter" onchange="setSubFilter(this.value)"
+                        class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm">
+                        <option value="CurrentMonth">Tagihan Bulan Ini</option>
+                        <option value="AllActive">Semua Aktif</option>
+                        <option value="Overdue">Terlewat (Overdue)</option>
+                    </select>
+                </div>
+
+                <div id="ui-subscriptions-container"></div>
+            </section>
+
+            <!-- TAB: GOALS -->
+            <section id="tab-goals" class="tab-content hidden animate-fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold">Manajemen Goal</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Wujudkan impian dengan alokasi dana
+                            yang
+                            terencana.
+                        </p>
+                    </div>
+                    <button onclick="openGoalModal()"
+                        class="hidden md:flex bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-brand-500/30 items-center justify-center gap-2 transition-all-smooth md:w-auto">
+                        <i class="ph-bold ph-plus"></i> <span>Tambah Goal</span>
+                    </button>
+                </div>
+
+                <div id="ui-goals-container">
+                    <!-- Digenerate via JS -->
+                </div>
+            </section>
+
+            <!-- TAB: ASSETS -->
+            <section id="tab-assets" class="tab-content hidden animate-fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold">Manajemen Aset</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Pantau nilai properti, investasi, dan
+                            barang
+                            berhargamu.</p>
+                    </div>
+                    <button onclick="openAssetModal()"
+                        class="hidden md:flex bg-purple-500 hover:bg-purple-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-purple-500/30 items-center justify-center gap-2 transition-all-smooth md:w-auto">
+                        <i class="ph-bold ph-plus"></i> <span>Tambah Aset</span>
+                    </button>
+                </div>
+
+                <!-- Filter Row -->
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mb-6 md:w-1/3">
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Filter Berdasarkan Akun</label>
+                    <select id="main-asset-filter" onchange="renderAssets()"
+                        class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium">
+                        <option value="All">Semua Akun Aset</option>
+                    </select>
+                </div>
+
+                <div id="ui-assets-container"></div>
+            </section>
+
+            <!-- TAB: DEBTS -->
+            <section id="tab-debts" class="tab-content hidden animate-fade-in">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold">Manajemen Utang</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Atur strategi pelunasan utang dan
+                            pantau
+                            sisa
+                            pinjamanmu.</p>
+                    </div>
+                    <div class="hidden md:flex gap-2 w-auto">
+                        <button onclick="openPayDebtGeneralModal()"
+                            class="flex-1 md:flex-none bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-blue-500/30 flex items-center justify-center gap-2 transition-all-smooth">
+                            <i class="ph-bold ph-receipt"></i> <span>Bayar Tagihan</span>
+                        </button>
+                        <button onclick="openDebtModal()"
+                            class="flex-1 md:flex-none bg-rose-500 hover:bg-rose-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-rose-500/30 flex items-center justify-center gap-2 transition-all-smooth">
+                            <i class="ph-bold ph-plus"></i> <span>Tambah Utang</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Filter Row -->
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-4 mb-6 md:w-1/3">
+                    <label class="block text-xs font-medium text-slate-500 mb-1">Filter Berdasarkan Akun</label>
+                    <select id="main-debt-filter" onchange="renderDebts()"
+                        class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium">
+                        <option value="All">Semua Akun Utang</option>
+                    </select>
+                </div>
+
+                <div id="ui-debts-container"></div>
+            </section>
+
+            <!-- TAB: ACCOUNTS -->
+            <section id="tab-accounts" class="tab-content hidden">
+                <div class="flex justify-between items-end mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold">Manajemen Akun</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Kelola daftar dompet, rekening, aset,
+                            dan
+                            utang.
+                        </p>
+                    </div>
+                    <button onclick="openAccountModal()"
+                        class="hidden md:flex bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-brand-500/30 items-center gap-2 transition-all-smooth transform hover:scale-105">
+                        <i class="ph-bold ph-plus"></i> <span>Tambah Akun</span>
+                    </button>
+                </div>
+                <div id="ui-accounts-container" class="space-y-8"></div>
+            </section>
+
+            <!-- TAB: CATEGORIES -->
+            <section id="tab-categories" class="tab-content hidden">
+                <div class="flex justify-between items-end mb-8">
+                    <div>
+                        <h2 class="text-2xl font-bold">Manajemen Kategori</h2>
+                        <p class="text-slate-500 dark:text-slate-400 text-sm mt-1">Kelola daftar kategori pemasukan dan
+                            pengeluaran.
+                        </p>
+                    </div>
+                    <button onclick="openCategoryModal()"
+                        class="hidden md:flex bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-xl shadow-lg shadow-brand-500/30 items-center gap-2 transition-all-smooth transform hover:scale-105">
+                        <i class="ph-bold ph-plus"></i> <span>Tambah Kategori</span>
+                    </button>
+                </div>
+                <div id="ui-categories-container"></div>
+            </section>
+
+            <!-- TAB: ADMIN -->
+            <section id="tab-admin" class="tab-content hidden h-full flex flex-col space-y-6 animate-fade-in pb-12">
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-2 gap-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="ph-bold ph-shield-check text-red-500"></i>
+                            Admin Dashboard
+                        </h2>
+                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Kelola pengguna dan lisensi aplikasi.
+                        </p>
+                    </div>
+                    <button onclick="loadAdminData(true)"
+                        class="p-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl text-slate-600 dark:text-slate-300 transition-colors">
+                        <i class="ph-bold ph-arrows-clockwise text-xl" id="admin-refresh-icon"></i>
+                    </button>
+                </div>
+
+                <!-- Compact Stats Row (1 Row Always) -->
+                <div class="grid grid-cols-3 gap-2 md:gap-4 mb-2">
+                    <div
+                        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-2.5 md:p-5 shadow-sm flex flex-col items-center text-center">
+                        <div
+                            class="w-7 h-7 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-blue-50 text-blue-500 dark:bg-blue-500/10 dark:text-blue-400 flex items-center justify-center mb-0.5 md:mb-2 text-sm md:text-2xl">
+                            <i class="ph-fill ph-users"></i>
+                        </div>
+                        <p
+                            class="text-[7px] md:text-xs font-bold text-slate-400 uppercase tracking-tighter md:tracking-widest">
+                            Users</p>
+                        <h3 class="text-xs md:text-2xl font-black text-slate-900 dark:text-white" id="admin-stat-users">
+                            0</h3>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-2.5 md:p-5 shadow-sm flex flex-col items-center text-center">
+                        <div
+                            class="w-7 h-7 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-emerald-50 text-emerald-500 dark:bg-emerald-500/10 dark:text-emerald-400 flex items-center justify-center mb-0.5 md:mb-2 text-sm md:text-2xl">
+                            <i class="ph-fill ph-key"></i>
+                        </div>
+                        <p
+                            class="text-[7px] md:text-xs font-bold text-slate-400 uppercase tracking-tighter md:tracking-widest">
+                            Active</p>
+                        <h3 class="text-xs md:text-2xl font-black text-slate-900 dark:text-white"
+                            id="admin-stat-active-keys">0</h3>
+                    </div>
+                    <div
+                        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl p-2.5 md:p-5 shadow-sm flex flex-col items-center text-center">
+                        <div
+                            class="w-7 h-7 md:w-12 md:h-12 rounded-lg md:rounded-xl bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400 flex items-center justify-center mb-0.5 md:mb-2 text-sm md:text-2xl">
+                            <i class="ph-fill ph-lock-key"></i>
+                        </div>
+                        <p
+                            class="text-[7px] md:text-xs font-bold text-slate-400 uppercase tracking-tighter md:tracking-widest">
+                            Used</p>
+                        <h3 class="text-xs md:text-2xl font-black text-slate-900 dark:text-white"
+                            id="admin-stat-used-keys">0</h3>
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-6">
+                    <!-- MODULE 1: LICENSE MANAGEMENT (NOW AT TOP) -->
+                    <div
+                        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col min-h-[400px]">
+                        <div class="p-4 md:p-5 border-b border-slate-100 dark:border-slate-800">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                    <i class="ph-bold ph-ticket text-brand-500"></i> Token Tersedia
+                                </h3>
+                            </div>
+                            <form id="form-generate-keys" onsubmit="handleGenerateKeys(event)"
+                                class="flex flex-col sm:flex-row gap-3">
+                                <div class="relative flex-1 sm:flex-initial sm:w-32">
+                                    <i
+                                        class="ph ph-hash absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                    <input type="number" id="input-key-qty" min="1" max="50" required
+                                        placeholder="Jumlah"
+                                        class="w-full pl-9 pr-3 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white font-bold">
+                                </div>
+                                <button type="submit" id="btn-generate-keys"
+                                    class="flex-1 bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 px-6 rounded-xl shadow-lg shadow-brand-500/30 transition-all active:scale-95 text-xs md:text-sm flex items-center justify-center gap-2 border border-brand-600/20">
+                                    <i class="ph-bold ph-magic-wand"></i> <span>Generate Token Baru</span>
+                                </button>
+                            </form>
+
+                            <!-- FILTER & SORT LISENSI -->
+                            <div class="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800/50 flex flex-col md:flex-row gap-3">
+                                <div class="flex-1">
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 px-1">Filter Status</label>
+                                    <div class="relative">
+                                        <i class="ph-bold ph-funnel absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none"></i>
+                                        <select id="admin-license-filter" onchange="renderFiltersLicenses()" class="w-full pl-9 pr-8 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                                            <option value="booked">Hanya Booked</option>
+                                            <option value="active" selected>Hanya Available</option>
+                                            <option value="all">Semua Tersedia</option>
+                                        </select>
+                                        <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                                    </div>
+                                </div>
+                                <div class="flex-1">
+                                    <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 px-1">Urutkan Berdasarkan</label>
+                                    <div class="relative">
+                                        <i class="ph-bold ph-sort-ascending absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm pointer-events-none"></i>
+                                        <select id="admin-license-sort" onchange="renderFiltersLicenses()" class="w-full pl-9 pr-8 py-2.5 text-sm bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl outline-none focus:ring-2 focus:ring-brand-500/20 text-slate-900 dark:text-white appearance-none cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                                            <option value="oldest" selected>Generate Paling Tua</option>
+                                            <option value="newest">Generate Paling Baru</option>
+                                        </select>
+                                        <i class="ph-bold ph-caret-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 overflow-auto p-0 border-t border-slate-100 dark:border-slate-800">
+                            <table class="w-full text-left text-sm table-fixed sm:table-auto">
+                                <thead class="bg-slate-50 dark:bg-slate-800/50 sticky top-0 shadow-sm">
+                                    <tr>
+                                        <th
+                                            class="px-4 md:px-5 py-3 font-bold text-slate-500 text-[10px] uppercase tracking-wider w-40 md:w-auto">
+                                            License Key</th>
+                                        <th
+                                            class="px-4 md:px-5 py-3 font-bold text-slate-500 text-[10px] uppercase tracking-wider text-center w-32 md:w-40">
+                                            Status</th>
+                                        <th
+                                            class="px-4 md:px-5 py-3 font-bold text-slate-500 text-[10px] uppercase tracking-wider text-right w-20 md:w-24">
+                                            Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-licenses-tbody"
+                                    class="divide-y divide-slate-100 dark:divide-slate-800">
+                                    <!-- Loading State -->
+                                    <tr>
+                                        <td colspan="3" class="px-5 py-8 text-center text-slate-500"><i
+                                                class="ph ph-spinner animate-spin text-2xl mb-2"></i><br>Loading
+                                            licenses...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- MODULE 2: USER DIRECTORY (NOW AT BOTTOM) -->
+                    <div
+                        class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-sm flex flex-col min-h-[400px]">
+                        <div
+                            class="p-4 md:p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+                            <h3 class="font-bold text-slate-800 dark:text-white flex items-center gap-2">
+                                <i class="ph-bold ph-identification-card text-brand-500"></i> User Directory
+                            </h3>
+                        </div>
+                        <div class="flex-1 overflow-auto p-0">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-slate-50 dark:bg-slate-800/50 sticky top-0">
+                                    <tr>
+                                        <th
+                                            class="px-4 md:px-5 py-3 font-bold text-slate-500 text-[10px] uppercase tracking-wider">
+                                            Email</th>
+                                        <th
+                                            class="px-4 md:px-5 py-3 font-bold text-slate-500 text-[10px] uppercase tracking-wider text-center">
+                                            Role / Level</th>
+                                        <th
+                                            class="px-4 md:px-5 py-3 font-bold text-slate-500 text-[10px] uppercase tracking-wider text-right hidden sm:table-cell">
+                                            Join Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="admin-users-tbody" class="divide-y divide-slate-100 dark:divide-slate-800">
+                                    <!-- Loading State -->
+                                    <tr>
+                                        <td colspan="3" class="px-5 py-8 text-center text-slate-500"><i
+                                                class="ph ph-spinner animate-spin text-2xl mb-2"></i><br>Loading
+                                            users...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- FAB Backdrop with Gradient Blur -->
+            <div id="fab-backdrop"
+                class="fixed inset-0 z-40 hidden pointer-events-none transition-opacity duration-300 backdrop-blur-md">
+            </div>
+
+            <!-- Global FAB (Floating Action Button / Speed Dial) -->
+            <div id="fab-container"
+                class="fixed bottom-24 md:bottom-8 right-4 md:right-8 z-[90] flex flex-col items-end gap-3 md:gap-4">
+                <!-- Speed Dial Menus (Hidden by default) -->
+                <div id="fab-menu"
+                    class="hidden flex-col items-end space-y-3 mb-2 transition-all duration-300 opacity-0 translate-y-4">
+                    <!-- Injected via JS based on current tab -->
+                </div>
+
+                <!-- ZETTBOT AI FAB -->
+                <button id="fab-ai" onclick="openAIModal()" title="AI Tracker (Ctrl+K)"
+                    class="w-12 h-12 md:w-16 md:h-16 bg-gradient-to-tr from-violet-600 to-indigo-500 text-white rounded-full shadow-lg md:shadow-xl ai-fab-glow flex items-center justify-center transition-transform hover:scale-105 active:scale-95 mb-1 md:mb-0">
+                    <i class="ph-bold ph-sparkle text-xl md:text-3xl"></i>
+                </button>
+
+                <!-- Main FAB -->
+                <button id="fab-main" onclick="handleFabClick()" title="Aksi Pintas"
+                    class="w-14 h-14 md:w-16 md:h-16 bg-brand-500 text-white rounded-full shadow-xl shadow-brand-500/40 flex items-center justify-center transition-transform hover:scale-105 active:scale-95 md:hidden">
+                    <i id="fab-icon" class="ph-bold ph-plus text-2xl md:text-3xl transition-transform duration-300"></i>
+                </button>
+            </div>
+
+        </main>
+
+        <!-- Mobile Menu Bottom Sheet -->
+        <div id="mobile-menu-overlay"
+            class="fixed inset-0 z-[110] hidden bg-slate-900/40 backdrop-blur-sm transition-opacity opacity-0"
+            onclick="closeMobileMenu()">
+            <div id="mobile-menu-sheet"
+                class="absolute bottom-0 w-full bg-white dark:bg-slate-900 rounded-t-3xl p-6 pb-10 transition-transform duration-300 transform translate-y-full shadow-2xl"
+                onclick="event.stopPropagation()">
+                <div class="w-12 h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mx-auto mb-5"></div>
+                <h3 id="mobile-menu-title" class="text-xl font-bold mb-6 text-slate-800 dark:text-slate-200">Menu</h3>
+                <div id="mobile-menu-content" class="grid grid-cols-2 gap-4">
+                    <!-- Content injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- ZETTBOT AI Chat Modal -->
+        <div id="modal-ai"
+            class="fixed inset-0 z-[100] hidden bg-slate-900/40 backdrop-blur-sm flex items-end md:items-center justify-center p-0 md:p-4"
+            onclick="if(event.target.id === 'modal-ai') closeAIModal()">
+            <div class="bg-white dark:bg-slate-900 w-full max-w-md md:rounded-2xl rounded-t-2xl shadow-2xl overflow-visible pointer-events-auto transform transition-transform translate-y-0"
+                onclick="event.stopPropagation()">
+                <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-800">
+                    <h3 class="font-bold text-lg flex items-center gap-2 text-violet-600 dark:text-violet-400">
+                        <i class="ph-bold ph-sparkle"></i> AI Expense Tracker
+                    </h3>
+                    <button type="button" onclick="closeAIModal()"
+                        class="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors focus:ring-2 focus:ring-violet-500/20 rounded-lg outline-none">
+                        <i class="ph-bold ph-x text-xl"></i>
+                    </button>
+                </div>
+                <form id="form-ai" onsubmit="submitAIChat(event)" class="p-4 flex flex-col gap-4">
+                    <div class="relative">
+                        <textarea id="ai-input" autocomplete="off" rows="1"
+                            placeholder="Cth: Beli bensin 50rb pake bca..."
+                            class="w-full pl-4 pr-14 py-4 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-violet-500/30 focus:border-violet-500 outline-none transition-all text-slate-800 dark:text-slate-200 typing-placeholder font-medium resize-none overflow-hidden"
+                            oninput="this.style.height = ''; this.style.height = this.scrollHeight + 'px'"
+                            onkeydown="if(event.key === 'Enter' && !event.shiftKey && window.innerWidth > 768) { event.preventDefault(); submitAIChat(event); }"></textarea>
+                        <button type="submit" id="btn-ai-submit"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 w-10 h-10 bg-violet-500 hover:bg-violet-600 text-white rounded-lg flex items-center justify-center transition-colors shadow-md disabled:bg-slate-300 disabled:dark:bg-slate-700 disabled:cursor-not-allowed outline-none">
+                            <i class="ph-bold ph-paper-plane-right text-lg"></i>
+                        </button>
+                    </div>
+                    <p class="text-[10px] text-slate-500 text-center uppercase tracking-wide font-bold mt-1">AI 3.1
+                        Flash Lite Auto Parser</p>
+                </form>
+            </div>
+        </div>
+
+        <!-- Modal Transaksi -->
+        <div id="modal-trx" class="fixed inset-0 z-[100] hidden overflow-y-auto bg-slate-900/40 backdrop-blur-sm"
+            onclick="if(event.target.id === 'modal-trx') closeTransactionModal()">
+            <div class="min-h-full flex items-center justify-center p-4 pointer-events-none">
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-visible animate-fade-in-up pointer-events-auto">
+                    <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-800">
+                        <h3 class="font-bold text-lg" id="modal-trx-title">Input Transaksi</h3>
+                        <button type="button" onclick="closeTransactionModal()"
+                            class="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors focus:ring-2 focus:ring-brand-500/20 rounded-lg outline-none">
+                            <i class="ph-bold ph-x text-xl"></i>
+                        </button>
+                    </div>
+                    <form id="form-trx" onsubmit="handleTrxSubmit(event)" class="p-4 md:p-6 flex flex-col gap-4">
+                        <input type="hidden" id="TrxID">
+                        <div
+                            class="grid grid-cols-3 gap-2 p-1 bg-slate-100 dark:bg-slate-800 rounded-lg mb-2 border border-slate-200 dark:border-slate-700">
+                            <label class="cursor-pointer">
+                                <input type="radio" name="Type" value="Expense" class="peer sr-only" checked
+                                    onchange="handleTrxTypeChange()">
+                                <div
+                                    class="text-center py-2 rounded-md peer-checked:bg-white peer-checked:dark:bg-slate-700 peer-checked:shadow-sm text-sm font-medium transition-all">
+                                    Pengeluaran</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="Type" value="Income" class="peer sr-only"
+                                    onchange="handleTrxTypeChange()">
+                                <div
+                                    class="text-center py-2 rounded-md peer-checked:bg-white peer-checked:dark:bg-slate-700 peer-checked:shadow-sm text-sm font-medium transition-all">
+                                    Pemasukan</div>
+                            </label>
+                            <label class="cursor-pointer">
+                                <input type="radio" name="Type" value="Transfer" class="peer sr-only"
+                                    onchange="handleTrxTypeChange()">
+                                <div
+                                    class="text-center py-2 rounded-md peer-checked:bg-white peer-checked:dark:bg-slate-700 peer-checked:shadow-sm text-sm font-medium transition-all">
+                                    Transfer</div>
+                            </label>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tanggal</label>
+                            <input type="date" id="TrxDate" required
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-slate-600 dark:text-slate-300">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nominal
+                                (Rp)</label>
+                            <div class="relative">
+                                <span
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-400">Rp</span>
+                                <input type="number" id="TrxAmount" required
+                                    class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-bold text-lg">
+                            </div>
+                        </div>
+
+                        <div id="wrapper-trx-account">
+                            <label id="label-trx-account"
+                                class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Gunakan
+                                Akun</label>
+                            <select id="TrxAccount" data-searchable="true"
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none font-medium"></select>
+                        </div>
+
+                        <div id="wrapper-trx-from" class="hidden">
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Dari
+                                Akun</label>
+                            <select id="TrxFromAccount"
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none font-medium"></select>
+                        </div>
+
+                        <div id="wrapper-trx-to" class="hidden">
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Ke
+                                Akun</label>
+                            <select id="TrxToAccount"
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none font-medium"></select>
+                        </div>
+
+                        <!-- Note for Transfer restriction -->
+                        <div id="wrapper-trx-transfer-note" class="hidden col-span-1 md:col-span-2 mt-1">
+                            <div
+                                class="text-[10px] text-slate-500 bg-slate-100 dark:bg-slate-800 p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 flex gap-2 items-start">
+                                <i class="ph-fill ph-info text-lg text-slate-400"></i>
+                                <span>Gunakan menu <b>Aset</b> atau <b>Utang</b> untuk melakukan transaksi ke/dari akun
+                                    terkait
+                                    agar sistem
+                                    alokasi tercatat rapi.</span>
+                            </div>
+                        </div>
+
+                        <div id="wrapper-trx-category">
+                            <label id="label-trx-category"
+                                class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Kategori</label>
+                            <select id="TrxCategory" data-searchable="true"
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none font-medium"></select>
+                        </div>
+
+                        <div>
+                            <label
+                                class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Catatan</label>
+                            <input type="text" id="TrxNote" placeholder="Makan siang, bensin, transfer bulanan..."
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm">
+                        </div>
+
+                        <button type="submit"
+                            class="w-full mt-4 bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-brand-500/30 transition-all-smooth">
+                            Simpan Transaksi
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Bayar Tagihan General (Multi Allocation) -->
+        <div id="modal-pay-debt-general"
+            class="fixed inset-0 z-[100] hidden overflow-y-auto bg-slate-900/40 backdrop-blur-sm"
+            onclick="if(event.target.id === 'modal-pay-debt-general') closePayDebtGeneralModal()">
+            <div class="min-h-full flex items-center justify-center p-4 pointer-events-none">
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-visible animate-fade-in-up pointer-events-auto flex flex-col">
+                    <div
+                        class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+                        <h3 class="font-bold text-lg">Bayar Tagihan Utang</h3>
+                        <button type="button" onclick="closePayDebtGeneralModal()"
+                            class="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors focus:ring-2 focus:ring-brand-500/20 rounded-lg outline-none">
+                            <i class="ph-bold ph-x text-xl"></i>
+                        </button>
+                    </div>
+                    <form id="form-pay-debt-general" onsubmit="submitPayDebtGeneral(event)"
+                        class="p-4 md:p-6 flex flex-col gap-4">
+                        <input type="hidden" id="PayDebtTrxID">
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tanggal
+                                Pembayaran</label>
+                            <input type="date" id="PayDebtDate" required
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Total
+                                Pembayaran
+                                (Rp)</label>
+                            <div class="relative">
+                                <span
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-400">Rp</span>
+                                <input type="number" id="PayDebtAmount" required placeholder="0"
+                                    oninput="calculateDebtAllocation()"
+                                    class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-bold text-lg">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Sumber Dana
+                                (Dari
+                                Akun)</label>
+                            <select id="PayDebtSource" required
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium"></select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Dibayarkan
+                                Ke (Akun
+                                Utang)</label>
+                            <select id="PayDebtDest" required onchange="renderDebtAllocationList()"
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium"></select>
+                        </div>
+
+                        <div id="PayDebtAllocationContainer"></div>
+
+                        <div id="PayDebtUnallocatedInfo" class="mt-1 h-4 flex items-center"></div>
+
+                        <button type="submit" id="btn-submit-pay-debt" disabled
+                            class="w-full mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all-smooth shrink-0 opacity-50 cursor-not-allowed">
+                            Proses Pembayaran
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal CRUD Budget -->
+        <div id="modal-budget" class="fixed inset-0 z-[100] hidden overflow-y-auto bg-slate-900/40 backdrop-blur-sm"
+            onclick="if(event.target.id === 'modal-budget') closeBudgetModal()">
+            <div class="min-h-full flex items-center justify-center p-4 pointer-events-none">
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-visible animate-fade-in-up pointer-events-auto flex flex-col">
+                    <div
+                        class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+                        <h3 class="font-bold text-lg" id="modal-budget-title">Tambah Budget</h3>
+                        <button type="button" onclick="closeBudgetModal()"
+                            class="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors focus:ring-2 focus:ring-brand-500/20 rounded-lg outline-none">
+                            <i class="ph-bold ph-x text-xl"></i>
+                        </button>
+                    </div>
+                    <form id="form-budget" onsubmit="saveBudget(event)" class="p-4 md:p-6 flex flex-col gap-4">
+                        <input type="hidden" id="BudID">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nama
+                                Budget</label>
+                            <input type="text" id="BudName" required placeholder="Cth: Kebutuhan Bulanan, Hiburan..."
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Batas
+                                Nominal
+                                (Bulanan)</label>
+                            <div class="relative">
+                                <span
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-400">Rp</span>
+                                <input type="number" id="BudAmount" required
+                                    class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-bold">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Kategori
+                                Pengeluaran
+                                Terkait</label>
+                            <div id="ui-budget-categories"
+                                class="max-h-32 overflow-y-auto bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 rounded-xl p-3 space-y-2 text-sm">
+                            </div>
+                        </div>
+                        <div class="border-t border-slate-200 dark:border-slate-800 my-2 pt-4">
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Mode
+                                Budgeting</label>
+                            <select id="BudMode" required onchange="handleBudgetModeChange()"
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none mb-3 text-sm font-bold text-brand-500">
+                                <option value="Reset">1. Reset Bulanan (Hangus tiap bulan)</option>
+                                <option value="Cumulative">2. Cumulative (Rollover / Akumulasi)</option>
+                            </select>
+                            <div id="wrapper-bud-cumulative"
+                                class="hidden space-y-4 bg-brand-50 dark:bg-brand-900/10 border border-brand-200 dark:border-brand-800/50 p-4 rounded-xl">
+                                <div>
+                                    <label
+                                        class="block text-[10px] uppercase font-bold text-brand-600 dark:text-brand-400 mb-1">Logika
+                                        Rollover</label>
+                                    <select id="BudRolloverType"
+                                        class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium">
+                                        <option value="Both">Akumulasi Murni (Bawa Surplus & Defisit)</option>
+                                        <option value="Overspend">Hanya Bawa Defisit (Minus memotong limit)</option>
+                                        <option value="Underspend">Hanya Bawa Surplus (Sisa menambah limit)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-[10px] uppercase font-bold text-brand-600 dark:text-brand-400 mb-1">Tanggal
+                                        Mulai
+                                        (Cut-off Awal)</label>
+                                    <input type="date" id="BudStartDate"
+                                        class="w-full px-3 py-2 rounded-lg bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm text-slate-600 dark:text-slate-300">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="submit"
+                            class="w-full mt-2 bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-brand-500/30 transition-all-smooth shrink-0">
+                            Simpan Budget
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal CRUD Langganan -->
+        <div id="modal-subscription"
+            class="fixed inset-0 z-[100] hidden overflow-y-auto bg-slate-900/40 backdrop-blur-sm"
+            onclick="if(event.target.id === 'modal-subscription') closeSubscriptionModal()">
+            <div class="min-h-full flex items-center justify-center p-4 pointer-events-none">
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-visible animate-fade-in-up pointer-events-auto flex flex-col">
+                    <div
+                        class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+                        <h3 class="font-bold text-lg" id="modal-subscription-title">Tambah Langganan</h3>
+                        <button type="button" onclick="closeSubscriptionModal()"
+                            class="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors focus:ring-2 focus:ring-brand-500/20 rounded-lg outline-none">
+                            <i class="ph-bold ph-x text-xl"></i>
+                        </button>
+                    </div>
+                    <form id="form-subscription" onsubmit="saveSubscription(event)"
+                        class="p-4 md:p-6 flex flex-col gap-4">
+                        <input type="hidden" id="SubID">
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nama
+                                Layanan</label>
+                            <input type="text" id="SubName" required placeholder="Cth: Netflix, Spotify, Listrik..."
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Biaya
+                                    (Rp)</label>
+                                <input type="number" id="SubAmount" required
+                                    class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-bold text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Siklus
+                                    Tagihan</label>
+                                <select id="SubFrequency" required
+                                    class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium">
+                                    <option value="Monthly">Bulanan</option>
+                                    <option value="Yearly">Tahunan</option>
+                                    <option value="Weekly">Mingguan</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Kategori
+                                Pengeluaran</label>
+                            <select id="SubCategory" required data-searchable="true"
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm"></select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Sumber Dana
+                                (Akun)</label>
+                            <select id="SubAccount" required
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm"></select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Jatuh
+                                    Tempo
+                                    Berikutnya</label>
+                                <input type="date" id="SubNextDue" required
+                                    class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm text-slate-600 dark:text-slate-300">
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Status</label>
+                                <select id="SubStatus" required
+                                    class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium">
+                                    <option value="Active">Aktif</option>
+                                    <option value="Paused">Dihentikan Sementara</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <button type="submit"
+                            class="w-full mt-2 bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all-smooth shrink-0 focus:ring-2 focus:ring-blue-500/20 outline-none">
+                            Simpan Langganan
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal CRUD Goal -->
+        <div id="modal-goal" class="fixed inset-0 z-[100] hidden overflow-y-auto bg-slate-900/40 backdrop-blur-sm"
+            onclick="if(event.target.id === 'modal-goal') closeGoalModal()">
+            <div class="min-h-full flex items-center justify-center p-4 pointer-events-none">
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-visible animate-fade-in-up pointer-events-auto flex flex-col">
+                    <div
+                        class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+                        <h3 class="font-bold text-lg" id="modal-goal-title">Tambah Goal Baru</h3>
+                        <button type="button" onclick="closeGoalModal()"
+                            class="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors focus:ring-2 focus:ring-brand-500/20 rounded-lg outline-none">
+                            <i class="ph-bold ph-x text-xl"></i>
+                        </button>
+                    </div>
+                    <form id="form-goal" onsubmit="saveGoal(event)" class="p-4 md:p-6 flex flex-col gap-4">
+                        <input type="hidden" id="GolID">
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nama Impian
+                                /
+                                Goal</label>
+                            <input type="text" id="GolName" required placeholder="Cth: Dana Darurat, Liburan Jepang..."
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Target
+                                    Nominal
+                                    (Rp)</label>
+                                <input type="number" id="GolTarget" required
+                                    class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-bold text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Dana
+                                    Terkumpul
+                                    Saat
+                                    Ini</label>
+                                <input type="number" id="GolAllocated" required value="0"
+                                    class="w-full px-4 py-3 rounded-xl bg-brand-50 dark:bg-brand-900/10 border border-brand-200 dark:border-brand-800/50 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 text-brand-600 dark:text-brand-400 outline-none transition-all font-bold text-sm">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Akun
+                                Penyimpanan
+                                Terhubung</label>
+                            <select id="GolAccount" required
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium"></select>
+                            <p class="text-[10px] text-slate-500 mt-1 leading-tight">Hanya akun tipe <span
+                                    class="font-bold">Cash &
+                                    Bank</span> atau <span class="font-bold">Investment</span> yang dapat dihubungkan.
+                            </p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tenggat
+                                Waktu
+                                (Deadline)</label>
+                            <input type="date" id="GolDeadline" required
+                                class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm text-slate-600 dark:text-slate-300">
+                        </div>
+
+                        <button type="submit"
+                            class="w-full mt-2 bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-brand-500/30 transition-all-smooth shrink-0">
+                            Simpan Goal
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal CRUD Aset -->
+        <div id="modal-asset" class="fixed inset-0 z-[100] hidden overflow-y-auto bg-slate-900/40 backdrop-blur-sm"
+            onclick="if(event.target.id === 'modal-asset') closeAssetModal()">
+            <div class="min-h-full flex items-center justify-center p-4 pointer-events-none">
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-visible animate-fade-in-up pointer-events-auto flex flex-col">
+
+                    <!-- Header -->
+                    <div
+                        class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+                        <h3 class="font-bold text-lg" id="modal-asset-title">Tambah Aset Baru</h3>
+                        <button type="button" onclick="closeAssetModal()"
+                            class="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors focus:ring-2 focus:ring-brand-500/20 rounded-lg outline-none">
+                            <i class="ph-bold ph-x text-xl"></i>
+                        </button>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="form-asset" onsubmit="saveAsset(event)" class="flex flex-col flex-1 min-h-0">
+                        <input type="hidden" id="AstID">
+
+                        <!-- Scrollable Body (Moved scroll to outer container) -->
+                        <div class="p-4 md:p-6 flex flex-col gap-4 flex-1">
+
+                            <!-- Nama Aset -->
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nama
+                                    Aset</label>
+                                <input type="text" id="AstName" required placeholder="Cth: Emas Antam 10g, Rumah KPR..."
+                                    class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+                            </div>
+
+                            <!-- Nilai Perolehan & Nilai Pasar -->
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label
+                                        class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nilai
+                                        Perolehan (Beli)</label>
+                                    <input type="number" id="AstOriginalValue" required
+                                        class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-bold text-sm">
+                                </div>
+                                <div>
+                                    <label
+                                        class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nilai
+                                        Pasar
+                                        (Sekarang)</label>
+                                    <input type="number" id="AstMarketValue" required
+                                        class="w-full px-3 py-3 rounded-xl bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-800/50 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 text-purple-600 dark:text-purple-400 outline-none transition-all font-bold text-sm">
+                                </div>
+                            </div>
+
+                            <!-- Metode Pencatatan -->
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Metode
+                                    Pencatatan</label>
+                                <select id="AstMethod" required
+                                    onchange="if(typeof handleAstMethodChange === 'function') handleAstMethodChange()"
+                                    class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium">
+                                    <option value="AdjustManual">Adjust Manual (Tanpa Transaksi Kas/Utang)</option>
+                                    <option value="BuyCash">Beli dengan Dana Kas/Bank</option>
+                                    <option value="BuyDebt">Beli dengan Utang (Kredit)</option>
+                                </select>
+                            </div>
+
+                            <!-- Sumber Dana (muncul saat BuyCash) -->
+                            <div id="wrap-ast-source-acc" class="hidden">
+                                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Sumber
+                                    Dana
+                                    Beli</label>
+                                <select id="AstSourceAccount"
+                                    class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium"></select>
+                            </div>
+
+                            <!-- Akun Utang + Checkbox (muncul saat BuyDebt) -->
+                            <div id="wrap-ast-debt-acc" class="hidden">
+                                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Akun
+                                    Utang
+                                    (Sumber Kredit)</label>
+                                <select id="AstDebtAccount"
+                                    class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium"></select>
+
+                                <label
+                                    class="flex items-start gap-2 mt-3 cursor-pointer group p-3 bg-rose-50 dark:bg-rose-900/10 rounded-xl border border-rose-100 dark:border-rose-900/50">
+                                    <div class="relative flex items-center justify-center pt-0.5">
+                                        <input type="checkbox" id="AstTrackDebt" checked
+                                            class="w-4 h-4 rounded text-rose-500 focus:ring-rose-500 bg-white border-rose-300 dark:border-rose-700 dark:bg-slate-900">
+                                    </div>
+                                    <div>
+                                        <span class="text-[13px] font-bold text-rose-700 dark:text-rose-400 block">Buat
+                                            Item
+                                            Tagihan Otomatis</span>
+                                        <span
+                                            class="text-[10px] text-rose-500/80 dark:text-rose-400/80 block mt-0.5">Lacak
+                                            cicilan untuk aset ini di menu Utang terpisah.</span>
+                                    </div>
+                                </label>
+                            </div>
+
+                            <!-- Pilih Akun Aset -->
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Pilih
+                                    Akun
+                                    Aset</label>
+                                <select id="AstAccount" required
+                                    class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium"></select>
+                            </div>
+
+                            <!-- Tanggal Perolehan -->
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tanggal
+                                    Perolehan</label>
+                                <input type="date" id="AstDate" required
+                                    class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm text-slate-600 dark:text-slate-300">
+                            </div>
+
+                        </div>
+
+                        <!-- Footer Button (selalu di bawah, tidak ikut scroll) -->
+                        <div
+                            class="border-t border-slate-200 dark:border-slate-800 p-4 shrink-0 bg-white dark:bg-slate-900">
+                            <button type="submit"
+                                class="w-full bg-purple-500 hover:bg-purple-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-purple-500/30 transition-all-smooth">
+                                Simpan Aset
+                            </button>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal CRUD Utang -->
+        <div id="modal-debt" class="fixed inset-0 z-[100] hidden overflow-y-auto bg-slate-900/40 backdrop-blur-sm"
+            onclick="if(event.target.id === 'modal-debt') closeDebtModal()">
+            <div class="min-h-full flex items-center justify-center p-4 pointer-events-none">
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-visible animate-fade-in-up pointer-events-auto flex flex-col">
+                    <div
+                        class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-800 shrink-0">
+                        <h3 class="font-bold text-lg" id="modal-debt-title">Tambah Utang Baru</h3>
+                        <button type="button" onclick="closeDebtModal()"
+                            class="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors focus:ring-2 focus:ring-brand-500/20 rounded-lg outline-none">
+                            <i class="ph-bold ph-x text-xl"></i>
+                        </button>
+                    </div>
+                    <form id="form-debt" onsubmit="saveDebt(event)" class="p-4 md:p-6 flex flex-col gap-4">
+                        <input type="hidden" id="DbtID">
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nama Utang
+                                /
+                                Pinjaman</label>
+                            <input type="text" id="DbtName" required
+                                placeholder="Cth: KPR, Cicilan Laptop, Utang Budi..."
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nilai
+                                    Awal
+                                    (Pokok)</label>
+                                <input type="number" id="DbtOriginalValue" required
+                                    oninput="handleDbtOriginalChange(this.value)"
+                                    class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-bold text-sm">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nilai
+                                    Akhir
+                                    (Plus
+                                    Bunga)</label>
+                                <input type="number" id="DbtFinalValue" required oninput="isDbtFinalTouched = true"
+                                    class="w-full px-3 py-3 rounded-xl bg-rose-50 dark:bg-rose-900/10 border border-rose-200 dark:border-rose-800/50 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 text-rose-600 dark:text-rose-400 outline-none transition-all font-bold text-sm">
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Sudah
+                                Dibayar
+                                (Terlunasi)</label>
+                            <input type="number" id="DbtPaidAmount" required value="0"
+                                class="w-full px-3 py-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800/50 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 text-emerald-600 dark:text-emerald-400 outline-none transition-all font-bold text-sm">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Akun
+                                Terhubung
+                                (Tipe
+                                Debt)</label>
+                            <select id="DbtAccount" required
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium"></select>
+                        </div>
+
+                        <div id="wrapper-dbt-affect">
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Dampak ke
+                                Saldo
+                                Akun</label>
+                            <select id="DbtAffectBalance" required
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium text-rose-600 dark:text-rose-400">
+                                <option value="true">Tambahkan ke Total Utang (Update Saldo Akun)</option>
+                                <option value="false">Hanya Catat (Sudah Termasuk di Saldo Akun)</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Target
+                                Lunas
+                                (Deadline)</label>
+                            <input type="date" id="DbtDeadline" required
+                                class="w-full px-3 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm text-slate-600 dark:text-slate-300">
+                        </div>
+
+                        <button type="submit"
+                            class="w-full mt-2 bg-rose-500 hover:bg-rose-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-rose-500/30 transition-all-smooth shrink-0">
+                            Simpan Utang
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal CRUD Akun -->
+        <div id="modal-account" class="fixed inset-0 z-[100] hidden overflow-y-auto bg-slate-900/40 backdrop-blur-sm"
+            onclick="if(event.target.id === 'modal-account') closeAccountModal()">
+            <div class="min-h-full flex items-center justify-center p-4 pointer-events-none">
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-visible animate-fade-in-up pointer-events-auto">
+                    <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-800">
+                        <h3 class="font-bold text-lg" id="modal-account-title">Tambah Akun Baru</h3>
+                        <button type="button" onclick="closeAccountModal()"
+                            class="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors focus:ring-2 focus:ring-brand-500/20 rounded-lg outline-none">
+                            <i class="ph-bold ph-x text-xl"></i>
+                        </button>
+                    </div>
+                    <form id="form-account" onsubmit="saveAccount(event)" class="p-4 md:p-6 flex flex-col gap-4">
+                        <input type="hidden" id="AccID">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nama
+                                Akun</label>
+                            <input type="text" id="AccName" required placeholder="BCA, Mandiri, Cash..."
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tipe
+                                Akun</label>
+                            <select id="AccType" required
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none font-medium">
+                                <option value="Cash & Bank">Cash & Bank</option>
+                                <option value="Investment">Investment</option>
+                                <option value="Asset">Asset</option>
+                                <option value="Debt">Debt (Utang)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Saldo Akhir
+                                (Balance)</label>
+                            <div class="relative">
+                                <span
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-400">Rp</span>
+                                <input type="number" id="AccBalance" required
+                                    class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-bold text-lg">
+                            </div>
+                        </div>
+                        <button type="submit"
+                            class="w-full mt-4 bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-brand-500/30 transition-all-smooth">
+                            Simpan Akun
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal CRUD Kategori -->
+        <div id="modal-category" class="fixed inset-0 z-[100] hidden overflow-y-auto bg-slate-900/40 backdrop-blur-sm"
+            onclick="if(event.target.id === 'modal-category') closeCategoryModal()">
+            <div class="min-h-full flex items-center justify-center p-4 pointer-events-none">
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-visible animate-fade-in-up pointer-events-auto">
+                    <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-800">
+                        <h3 class="font-bold text-lg" id="modal-category-title">Tambah Kategori Baru</h3>
+                        <button type="button" onclick="closeCategoryModal()"
+                            class="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors focus:ring-2 focus:ring-brand-500/20 rounded-lg outline-none">
+                            <i class="ph-bold ph-x text-xl"></i>
+                        </button>
+                    </div>
+                    <form id="form-category" onsubmit="saveCategory(event)" class="p-4 md:p-6 flex flex-col gap-4">
+                        <input type="hidden" id="CatID">
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nama
+                                Kategori</label>
+                            <input type="text" id="CatName" required placeholder="Gaji, Makanan, Transportasi..."
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Deskripsi</label>
+                            <textarea id="CatDescription" rows="2" placeholder="Keterangan tambahan (opsional)..."
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 resize-none"></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tipe
+                                Kategori</label>
+                            <select id="CatType" required
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none font-medium">
+                                <option value="Income">Pemasukan</option>
+                                <option value="Expense">Pengeluaran</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">Pilih
+                                Ikon</label>
+                            <input type="hidden" id="CatIcon" value="ph-tag">
+                            <div class="grid grid-cols-6 gap-2 max-h-48 overflow-y-auto p-1" id="ui-icon-selector">
+                            </div>
+                        </div>
+                        <button type="submit"
+                            class="w-full mt-4 bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl shadow-lg shadow-brand-500/30 transition-all-smooth">
+                            Simpan Kategori
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal Quick Action -->
+        <div id="modal-quick-action"
+            class="fixed inset-0 z-[100] hidden overflow-y-auto bg-slate-900/40 backdrop-blur-sm"
+            onclick="if(event.target.id === 'modal-quick-action') closeQuickActionModal()">
+            <div class="min-h-full flex items-center justify-center p-4 pointer-events-none">
+                <div
+                    class="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 w-full max-w-md rounded-2xl shadow-2xl overflow-visible animate-fade-in-up pointer-events-auto">
+                    <div class="flex justify-between items-center p-4 border-b border-slate-200 dark:border-slate-800">
+                        <h3 class="font-bold text-lg" id="modal-action-title">Aksi Cepat</h3>
+                        <button type="button" onclick="closeQuickActionModal()"
+                            class="text-slate-400 hover:text-slate-800 dark:hover:text-white transition-colors"><i
+                                class="ph-bold ph-x text-xl"></i></button>
+                    </div>
+                    <form id="form-quick-action" onsubmit="submitQuickAction(event)"
+                        class="p-4 md:p-6 flex flex-col gap-4">
+                        <input type="hidden" id="ActionEntityID">
+                        <input type="hidden" id="ActionType">
+
+                        <div id="action-subtitle"
+                            class="text-sm font-bold text-brand-500 mb-2 p-3 bg-brand-50 dark:bg-brand-900/20 rounded-xl whitespace-pre-line leading-relaxed">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Tanggal
+                                Transaksi</label>
+                            <input type="date" id="ActionDate" required
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-slate-600 dark:text-slate-300">
+                        </div>
+
+                        <div>
+                            <label id="label-action-amt"
+                                class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nominal
+                                (Rp)</label>
+                            <div class="relative">
+                                <span
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-slate-400">Rp</span>
+                                <input type="number" id="ActionAmount" required
+                                    class="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 outline-none transition-all font-bold text-lg">
+                            </div>
+                        </div>
+
+                        <!-- Partial Sell (hanya tampil saat Jual Aset) -->
+                        <div id="wrapper-action-partial" class="hidden">
+                            <label class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Porsi Dijual (%)</label>
+                            <div class="flex items-center gap-3">
+                                <input type="range" id="ActionSellPercent" min="10" max="100" step="10" value="100"
+                                    oninput="handleSellPercentChange()"
+                                    class="flex-1 h-2 rounded-lg appearance-none bg-slate-200 dark:bg-slate-700 accent-brand-500">
+                                <span id="ActionSellPercentLabel" class="text-sm font-bold text-brand-600 dark:text-brand-400 w-12 text-right">100%</span>
+                            </div>
+                            <p id="ActionSellInfo" class="text-[10px] text-slate-500 mt-1"></p>
+                        </div>
+
+                        <div>
+                            <label id="label-action-acc"
+                                class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Gunakan
+                                Akun</label>
+                            <select id="ActionAccount" required
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none font-medium"></select>
+                        </div>
+
+                        <div id="wrapper-action-cat">
+                            <label id="label-action-cat"
+                                class="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Kategori
+                                Transaksi</label>
+                            <select id="ActionCategory" data-searchable="true"
+                                class="w-full px-4 py-3 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none font-medium"></select>
+                        </div>
+
+                        <button type="submit" id="btn-action-submit"
+                            class="w-full mt-4 bg-brand-500 hover:bg-brand-600 text-white font-bold py-3 rounded-xl shadow-lg transition-all-smooth">
+                            Proses Transaksi
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Smart Floating Detail Pane -->
+        <div id="modal-account-detail"
+            class="fixed inset-0 top-0 md:left-56 z-[100] hidden flex justify-end bg-slate-900/40 backdrop-blur-sm transition-all-smooth"
+            onclick="handleBackdropClick(event)">
+            <div id="detail-pane-inner"
+                class="bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 w-full md:w-[480px] h-screen shadow-2xl flex flex-col animate-fade-in transition-all-smooth"
+                style="animation-name: slideInRight;" onclick="event.stopPropagation()">
+
+                <div
+                    class="p-6 border-b border-slate-200 dark:border-slate-800 flex justify-between items-start bg-slate-50 dark:bg-slate-950/50">
+                    <div>
+                        <div class="text-xs font-bold text-brand-500 uppercase tracking-wider mb-1"
+                            id="detail-acc-type">
+                            Tipe</div>
+                        <h2 class="text-2xl font-bold" id="detail-acc-name">Nama Akun</h2>
+                        <p class="text-lg font-medium text-slate-500 dark:text-slate-400 mt-1" id="detail-acc-balance">
+                            Rp 0
+                        </p>
+                        <div id="detail-acc-free-wrap" class="hidden text-xs font-bold text-emerald-600 dark:text-emerald-400 mt-1 p-1.5 bg-emerald-50 dark:bg-emerald-900/10 rounded-lg border border-emerald-100 dark:border-emerald-800/50 w-max shadow-sm">
+                            Bebas Transaksi: <span id="detail-acc-free-balance">Rp 0</span>
+                        </div>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="toggleExpandDetail()"
+                            class="hidden md:block p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-slate-500 hover:text-brand-500 transition-colors shadow-sm"
+                            title="Expand / Shrink">
+                            <i class="ph-bold ph-arrows-out text-xl" id="icon-expand-detail"></i>
+                        </button>
+                        <button type="button" onclick="closeAccountDetail()"
+                            class="p-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-full text-slate-500 hover:text-rose-500 transition-colors shadow-sm"
+                            title="Close">
+                            <i class="ph-bold ph-x text-xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex border-b border-slate-200 dark:border-slate-800">
+                    <button onclick="switchDetailTab('history')" id="btn-tab-history"
+                        class="flex-1 py-3 text-sm font-bold text-brand-500 border-b-2 border-brand-500 bg-white dark:bg-slate-900 transition-colors">Histori
+                        Transaksi</button>
+                    <button onclick="switchDetailTab('allocation')" id="btn-tab-allocation"
+                        class="flex-1 py-3 text-sm font-bold text-slate-500 hover:text-slate-800 dark:hover:text-slate-300 border-b-2 border-transparent bg-slate-50 dark:bg-slate-900/50 transition-colors">Alokasi</button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-6" id="detail-content-history">
+                    <div id="history-filter-wrap" class="mb-4 flex flex-col gap-2">
+                        <select id="filter-history" onchange="renderAccountHistory()"
+                            class="w-full px-3 py-2 rounded-lg bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm font-medium">
+                            <option value="All">Semua Transaksi</option>
+                            <option value="Income">Pemasukan</option>
+                            <option value="Expense">Pengeluaran</option>
+                            <option value="Transfer">Transfer</option>
+                        </select>
+                        <div class="flex gap-2 w-full">
+                            <div class="relative flex-1">
+                                <span
+                                    class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">Dari</span>
+                                <input type="date" id="filter-date-start" onchange="renderAccountHistory()"
+                                    class="w-full pl-10 pr-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm text-slate-500 cursor-pointer">
+                            </div>
+                            <div class="relative flex-1">
+                                <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs">Ke</span>
+                                <input type="date" id="filter-date-end" onchange="renderAccountHistory()"
+                                    class="w-full pl-8 pr-3 py-2 rounded-xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-700 outline-none text-sm text-slate-500 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="ui-detail-history" class="space-y-4"></div>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-6 hidden" id="detail-content-allocation">
+                    <div id="ui-detail-allocation" class="space-y-4"></div>
+                </div>
+            </div>
+        </div><!-- END #appView -->
+    <script src="js/config.js"></script>
+    <script src="js/api-bridge.js"></script>
+    <script src="js/login.js"></script>
+    <script src="js/script-core.js"></script>
+    <script src="js/script-dashboard.js"></script>
+    <script src="js/script-transactions.js"></script>
+    <script src="js/script-planning.js"></script>
+    <script src="js/script-portfolio.js"></script>
+    <script src="js/script-management.js"></script>
+<script>
+            /**
+             * ZETTBOT: Refresh Session secara silent jika token hampir kadaluarsa (> 50 menit)
+             * Mencegah error "Token tidak valid" saat user standby lama di app.
+             */
+            async function refreshSessionIfNeeded() {
+                try {
+                    let sessionData = localStorage.getItem('excellearn_session') || sessionStorage.getItem('excellearn_session');
+                    if (!sessionData) return true;
+
+                    let session = JSON.parse(sessionData);
+                    if (!session.refreshToken) return true;
+
+                    let shouldRefresh = false;
+                    const now = new Date().getTime();
+
+                    try {
+                        // Secara akurat membaca Expiration Time dari Firebase JWT Token
+                        const jwtPayload = JSON.parse(atob(session.idToken.split('.')[1]));
+                        const expTime = jwtPayload.exp * 1000;
+                        // Refresh jika sisa waktu kurang dari 10 menit (600.000 ms) atau sudah lewat
+                        if (expTime > 0 && (expTime - now) < 600000) {
+                            shouldRefresh = true;
+                        }
+                    } catch (err) {
+                        // Fallback jika decode gagal
+                        const loginTime = new Date(session.loginTime || 0).getTime();
+                        const diffMinutes = (now - loginTime) / (1000 * 60);
+                        if (diffMinutes > 50) shouldRefresh = true;
+                    }
+
+                    if (shouldRefresh) {
+                        console.log('ZETTBOT: Session expired detected. Refreshing token...');
+                        return new Promise((resolve) => {
+                            google.script.run
+                                .withSuccessHandler(res => {
+                                    if (res.success) {
+                                        session.idToken = res.data.idToken;
+                                        session.refreshToken = res.data.refreshToken || session.refreshToken;
+                                        session.loginTime = new Date().toISOString();
+
+                                        localStorage.setItem('excellearn_session', JSON.stringify(session));
+                                        sessionStorage.setItem('excellearn_session', JSON.stringify(session));
+                                        window.appSession = session;
+                                        console.log('ZETTBOT: Token refreshed successfully.');
+                                        resolve(true);
+                                    } else {
+                                        console.warn('ZETTBOT: Token refresh failed:', res.message);
+                                        resolve(false);
+                                    }
+                                })
+                                .withFailureHandler((err) => {
+                                    console.error('ZETTBOT: Token refresh server error:', err);
+                                    resolve(false);
+                                })
+                                .firebaseRefreshToken(session.refreshToken);
+                        });
+                    }
+                    return true;
+                } catch (e) {
+                    console.error('ZETTBOT: Refresh session helper error:', e);
+                    return true;
+                }
+            }
+        </script>
+</body>
+
+</html>
